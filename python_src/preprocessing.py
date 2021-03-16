@@ -1,5 +1,5 @@
 import extraction
-from extraction import recentPosts
+from extraction import recentPosts, recentComments
 import stanza
 
 from stanza.server import CoreNLPClient
@@ -29,10 +29,49 @@ def main():
             print(fv)
     pass
 
+"""
+FEATUREVECTOR DOCUMENTATION:
+
+ This will keep track of what each slot in the FV corresponds to.
+
+ Common ALL3:
+    [Score/Reputation, CreationDate (converted to timestamp), NER, 
+
+ Common POST & USER (fomat: User/Post):
+    Views/ViewCount, LastAccessDate/LastActivityDate (TO TIMESTAMP)
+
+ Unique to User:
+    Upvotes, Downvotes
+ 
+ Unique to Post:
+    AnswerCount, CommentCount, TAGS? ]
+
+MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
+
+"""
+
 def userToFV(user, client):
     fv = []
     userner = convertStringToNER(user['AboutMe'], client)
-    pass
+
+    fv.append([
+        float(user['Reputation']),
+        sotimeToTimestamp(user['CreationDate'])
+    ])
+
+    fv.append(userner)
+
+    fv.append([
+        float(user['Views']),
+        float(user['LastAccessDate']),
+        float(user['UpVotes']),
+        float(user['DownVotes']),
+        0.0,0.0
+        ])
+    
+    fv = flatten(fv)
+
+    return fv
 
 def commentToFV(comment, client):
     fv = []
