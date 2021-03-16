@@ -81,8 +81,8 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
 
 recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("ye1")
-# recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
-# print("y2e")
+recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
+print("y2e")
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")
