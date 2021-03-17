@@ -23,19 +23,31 @@ def main():
     
         for i in range(100,110):
             samplePost = recentPosts[i]
+            sampleComment = recentComments[i]
+            print("SAMPLE POST", i, ":")
             print(samplePost['Body'])
             print('\n')
             fv = postToFV(samplePost, client)
             print(fv)
+
+            print("SAMPLE COMMENT", i, ":")
+            print(sampleComment['Text'])
+            print('\n')
+            fv = commentToFV(sampleComment, client)
+            print(fv)
+
+            
     pass
 
 """
 FEATUREVECTOR DOCUMENTATION:
 
  This will keep track of what each slot in the FV corresponds to.
-
+ First a 1 for what it is:
+    [ Post, User, Comment,
+ 
  Common ALL3:
-    [Score/Reputation, CreationDate (converted to timestamp), NER, 
+    Score/Reputation, CreationDate (converted to timestamp), NER, 
 
  Common POST & USER (fomat: User/Post):
     Views/ViewCount, LastAccessDate/LastActivityDate (TO TIMESTAMP)
@@ -50,11 +62,35 @@ MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
 
 """
 
+def postToFV(post, client):
+    fv = [] # need to decide on the structure for a general node FV, then use that here
+    postner = getPostNER(post, client)
+
+    fv.append([
+        1.0,0.0,0.0,
+        float(post['Score']),
+        sotimeToTimestamp(post['CreationDate'])
+        ])
+
+    fv.append(postner)
+    if post['PostTypeId'] == '1':
+        fv.append([float(post['ViewCount']),
+            sotimeToTimestamp(post['LastActivityDate']),
+            0.0,0.0,
+            float(post['AnswerCount']),
+            float(post['CommentCount'])])
+    else:
+        fv.append([0.0,sotimeToTimestamp(post['LastActivityDate']),0.0,0.0,0.0,float(post['CommentCount'])])
+
+    flat_vec = flatten(fv)
+    return flat_vec
+
 def userToFV(user, client):
     fv = []
     userner = convertStringToNER(user['AboutMe'], client)
 
     fv.append([
+        0.0,1.0,0.0,
         float(user['Reputation']),
         sotimeToTimestamp(user['CreationDate'])
     ])
@@ -78,6 +114,7 @@ def commentToFV(comment, client):
     commentner = convertStringToNER(comment['Text'], client)
 
     fv.append([
+        0.0,0.0,1.0,
         float(comment['Score']),
         sotimeToTimestamp(comment['CreationDate'])
         ])
@@ -86,25 +123,9 @@ def commentToFV(comment, client):
 
     fv.append([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ])
 
+    fv = flatten(fv)
+
     return fv
-
-def postToFV(post, client):
-    fv = [] # need to decide on the structure for a general node FV, then use that here
-    postner = getPostNER(post, client)
-    fv.append([float(post['Score']),sotimeToTimestamp(post['CreationDate'])])
-    fv.append(postner)
-    if post['PostTypeId'] == '1':
-        fv.append([float(post['ViewCount']),
-            sotimeToTimestamp(post['LastActivityDate']),
-            0.0,0.0,
-            float(post['AnswerCount']),
-            float(post['CommentCount'])])
-    else:
-        fv.append([0.0,sotimeToTimestamp(post['LastActivityDate']),0.0,0.0,0.0,float(post['CommentCount'])])
-
-    flat_vec = flatten(fv)
-    return flat_vec
-    
 
 def getPostNER(post, client):
 
