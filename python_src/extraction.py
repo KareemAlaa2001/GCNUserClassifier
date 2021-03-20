@@ -2,6 +2,7 @@ from collections import UserDict
 import numpy
 import xml.etree.ElementTree as ET
 import os
+import matplotlib.pyplot as plt
 
 # class DataExtractor:
 
@@ -79,10 +80,25 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
-recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
-print("ye1")
-recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
-print("y2e")
+# recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+# print("extracted posts")
+# recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
+# print("extracted comments")
+
+recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
+print("extracted users")
+
+# extract a list of all the instances of the specified attribute in the list of dicts
+def extractAttribList(dictlist, attrib):
+    if dictlist[0].get(attrib) is None:
+        raise Exception("Passed attrib is not an attribute of the dictionaries in the list!")
+
+    attList = []
+
+    for entry in dictlist:
+        attList.append(entry.get(attrib))
+
+    return attList
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")
@@ -93,8 +109,7 @@ print("y2e")
 # recentPostLinks = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostLinks.xml").getroot())
 # print("ye5")
 
-# recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
-# print("ye6")
+
 # print(len(recentUsers))
 # print(recentUsers[0].get('Id'), userDict.get(recentUsers[0].get('Id')))
 
@@ -117,9 +132,6 @@ print("y2e")
   
     
 
-    
-
-    
 
 
 

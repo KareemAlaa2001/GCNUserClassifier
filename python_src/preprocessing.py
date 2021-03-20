@@ -97,6 +97,8 @@ def userToFV(user, client):
 
     fv.append(userner)
 
+    viewsVector = range_bin_num_feature(user['Views'], [])
+
     fv.append([
         float(user['Views']),
         float(user['LastAccessDate']),

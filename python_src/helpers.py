@@ -51,6 +51,35 @@ def buildNERVector(ann):
     return nerVector
 
 
+"""
+you need to think this through, but I suggest this might be something to consider:
+- popularity = 0,1-2,3-5,5-10,10-50,50+
+- notoriety = 0,1-2,3-5,5-10,10-50,50+
+- edit_activity = 1min_ago,1hour_ago,1day_ago,1week_ago,ages_ago,never
+ 
+the you have:
+"""
+
+# takes a feature that has a numeric representation and returns a range binned representation based on the thresholds passed in
+# If for example the thresholds list pased in is [0,2,5,10,20,50] then it is binned into [0, 1-2, 3-5, 6-10, 11-20, 21-50]
+def range_bin_num_feature(num, thresholds):
+    rbinvec = np.zeroes(len(thresholds)+ 1)
+    inRange = False
+    for i in range(len(thresholds)):
+        if num > thresholds[i]:
+            continue
+        else:
+            rbinvec[i] = 1
+            inRange = True
+    
+    if not inRange:
+        rbinvec[-1] = 1
+
+    return rbinvec
+    
+
+
+
 # basic naive regex xml tag remover
 def cleanXML(string):
     return re.sub('<.*?>', '', string)
