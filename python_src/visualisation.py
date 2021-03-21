@@ -87,9 +87,14 @@ viewsList = toIntList(extractAttribList(recentUsers, 'Views'))
 answerCounts = toIntList(extractAttribListIgnoreNones(recentPosts, 'AnswerCount'))
 commentCounts = toIntList(extractAttribListIgnoreNones(recentPosts, 'CommentCount'))
 
-print(test_bins(answerCounts, [0,2,5,10,20]))
-print(test_bins(commentCounts, [0,2,5,10,20]))
+# print(test_bins(answerCounts, [0,2,5,10,20]))
+# print(test_bins(commentCounts, [0,2,5,10,20]))
 
+upvotes = toIntList(extractAttribList(recentUsers, 'UpVotes'))
+downvotes = toIntList(extractAttribList(recentUsers, 'DownVotes'))
+
+print(test_bins(upvotes, [0,2,5,10,20,50,100,1000]))
+print(test_bins(downvotes, [0,2,5,10,20,50,100,1000]))
 
 
 # %%

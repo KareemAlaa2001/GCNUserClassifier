@@ -90,6 +90,9 @@ def rangeBinScore(score):
 def rangeBinAnswerOrCommentCount(count):
     return range_bin_num_feature(count, [0,2,5,10,20])
 
+def rangeBinUpDownVotes(vote):
+    return range_bin_num_feature(vote, [0,2,5,10,20,50,100,1000])
+
 # takes a list of string (or any other type) values and maps them to ints
 def toIntList(lst):
     return list(map(lambda x: int(x), lst))

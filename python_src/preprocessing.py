@@ -56,7 +56,7 @@ FEATUREVECTOR DOCUMENTATION:
     Upvotes, Downvotes
  
  Unique to Post:
-    AnswerCount, CommentCount, TAGS? ]
+    AnswerCount, CommentCount]
 
 MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
 
@@ -79,16 +79,19 @@ def postToFV(post, client):
     if post['PostTypeId'] == '1':
         fv.append(rangeBinViews(post['ViewCount']))
         fv.append([
-            sotimeToTimestamp(post['LastActivityDate']),
-            0.0,0.0]
-            )
+            sotimeToTimestamp(post['LastActivityDate'])])
 
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+        
         fv.append(rangeBinAnswerOrCommentCount(float(post['AnswerCount'])))
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
         
     else:
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-        fv.append([sotimeToTimestamp(post['LastActivityDate']),0.0,0.0])
+        fv.append([sotimeToTimestamp(post['LastActivityDate'])])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
 
@@ -112,12 +115,12 @@ def userToFV(user, client):
     viewsVector = rangeBinViews(float(user['Views']))
 
     fv.append(viewsVector)
-    fv.append([
-        float(user['LastAccessDate']),
-        float(user['UpVotes']),
-        float(user['DownVotes'])
-        ])
+
+    fv.append(sotimeToTimestamp(user['LastAccessDate']))
     
+    fv.append(rangeBinUpDownVotes(float(user['UpVotes'])))
+    fv.append(rangeBinUpDownVotes(float(user['DownVotes'])))
+
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
     
@@ -141,11 +144,14 @@ def commentToFV(comment, client):
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
 
-    fv.append([ 0.0, 0.0, 0.0, 0.0])
+    fv.append([ 0.0, 0.0])
+
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-    
+
     fv = flatten(fv)
 
     return fv
