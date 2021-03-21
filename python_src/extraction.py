@@ -2,7 +2,7 @@ import numpy
 import xml.etree.ElementTree as ET
 import os
 import matplotlib.pyplot as plt
-
+from helpers import *
 # class DataExtractor:
 
 # checking if a post was made in 2019 or later
@@ -44,15 +44,6 @@ def isRelevantBadge(badge, users):
     else:
         return False    
 
-def user_accessed_recently(user):
-    last_access = user.get('LastAccessDate')
-
-    year = int(last_access[:4])
-    
-    if year >= 2019:
-        return True
-    else:
-        return False   
 
 def getRecentlyAccessedusers(root):
     relevant = []
@@ -117,11 +108,11 @@ print("extracted posts")
 recentComments = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
 print("extracted comments")
 
-# TODO change the way users are extracted to reflect the comment and post lists we're working with, current list has too many isolated nodes
-recentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
-print("extracted users")
+# OLDrecentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
+# print("extracted users")
 
-connectedUsers = extractConnectedUsers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
+# updated list of recent users to reflect those involved in comments and posts above rather than everyone that logged in 2019 or later
+recentUsers = extractConnectedUsers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 

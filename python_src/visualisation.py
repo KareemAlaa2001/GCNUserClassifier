@@ -1,6 +1,6 @@
 #%%
 from extraction import recentPosts, recentComments, recentUsers, extractAttribList
-
+from helpers import flatten
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
@@ -10,7 +10,7 @@ from matplotlib.ticker import PercentFormatter
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 # N_points = 100000
-n_bins = 10
+# n_bins = 10
 
 # viewsList = extractAttribList(recentUsers, 'Views')
 
@@ -21,25 +21,32 @@ n_bins = 10
 # print(nonZeroes[:200])
 # plt.hist(nonZeroes, bins=n_bins)
 # plt.show()
+#%%
 
 postScoreList = extractAttribList(recentPosts, 'Score')
 
 print("Post score list size:", len(postScoreList))
 print("Post Scores: ")
-print(postScoreList[:1000])
+print(postScoreList[:100])
 
 commentScoreList = extractAttribList(recentComments, 'Score')
 
 print("Comment score list size:", len(commentScoreList))
 print("Comment Scores: ")
-print(commentScoreList[:1000])
+print(commentScoreList[:100])
 
 userRepList = extractAttribList(recentUsers, 'Reputation' )
 
 print("User rep list size:", len(userRepList))
 print("User Reputations: ")
-print(userRepList[-1000:])
+print(userRepList[-100:])
 
+concatScoreList = flatten([postScoreList, commentScoreList, userRepList])
+intScores = list(map(lambda x: int(x), concatScoreList))
+print(intScores[:100])
+
+
+plt.hist(intScores, alpha=0.5, bins=np.arange(min(intScores), max(intScores) + 100, 100))
 # # Generate a normal distribution, center at x=0 and y=5
 # # x = np.random.randn(N_points)
 # # y = .4 * x + np.random.randn(100000) + 5
@@ -52,3 +59,26 @@ print(userRepList[-1000:])
 
 
  # %%
+def test_bins(list, thresholds):
+    counts = np.zeros(len(thresholds) + 1)
+    
+    for num in list:
+        inRange = False
+
+        for i in range(len(thresholds)):
+            if num > thresholds[i]:
+                continue
+            else:
+                counts[i] += 1
+                inRange = True
+                break
+    
+        if not inRange:
+            counts[-1] += 1
+
+    return counts
+
+print(test_bins(intScores, [-10,-1,0,5,10,20,50,100,1000,10000,100000]))
+
+
+# %%

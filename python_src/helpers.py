@@ -64,7 +64,7 @@ the you have:
 # takes a feature that has a numeric representation and returns a range binned representation based on the thresholds passed in
 # If for example the thresholds list pased in is [0,2,5,10,20,50] then it is binned into [0, 1-2, 3-5, 6-10, 11-20, 21-50]
 def range_bin_num_feature(num, thresholds):
-    rbinvec = np.zeroes(len(thresholds)+ 1)
+    rbinvec = np.zeros(len(thresholds)+ 1)
     inRange = False
     for i in range(len(thresholds)):
         if num > thresholds[i]:
@@ -72,6 +72,7 @@ def range_bin_num_feature(num, thresholds):
         else:
             rbinvec[i] = 1
             inRange = True
+            break
     
     if not inRange:
         rbinvec[-1] = 1
@@ -93,3 +94,14 @@ def cleanXML(string):
 
 def flatten(listofLists):
     return [item for sublist in listofLists for item in sublist]
+
+
+def user_accessed_recently(user):
+    last_access = user.get('LastAccessDate')
+
+    year = int(last_access[:4])
+    
+    if year >= 2019:
+        return True
+    else:
+        return False   

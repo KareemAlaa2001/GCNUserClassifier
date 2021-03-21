@@ -1,6 +1,7 @@
 import datetime
 # import preprocessing
-from extraction import extractAttribList, recentUsers
+# from extraction import extractAttribList, recentUsers
+from helpers import range_bin_num_feature
 # from preprocessing import sotimeToTimestamp
 
 # def testSoTimeToTimestamp():
@@ -15,22 +16,39 @@ from extraction import extractAttribList, recentUsers
 #     else:
 #         print('something went wrong')
 
+# success
+def testRangeBinNumFt():
+    bins = [0,2,5,10]
+    num = 1
 
+    print(range_bin_num_feature(num, bins))
+    # assert range_bin_num_feature(num, bins).all() == [0,1,0,0,0]
+
+    num = 12
+    print(range_bin_num_feature(num, bins))
+    # assert range_bin_num_feature(num, bins).all() == [0,0,0,0,1]
+
+    num = -5
+    print(range_bin_num_feature(num, bins))
+    # assert range_bin_num_feature(num, bins).all() == [1,0,0,0,0]
+
+
+    pass
 
 # success
-def testExtractAttribList():
-    getViews = lambda user: user.get('Views')
+# def testExtractAttribList():
+#     getViews = lambda user: user.get('Views')
 
-    ten_recent_user_views = list(map(getViews, recentUsers[:10]))
-    print(ten_recent_user_views)
+#     ten_recent_user_views = list(map(getViews, recentUsers[:10]))
+#     print(ten_recent_user_views)
 
-    extractedViews = extractAttribList(recentUsers[:10], 'Views')
-    print(extractedViews)
-    assert ten_recent_user_views == extractedViews, "Extractedviews and first 10 user views are not equal!" 
+#     extractedViews = extractAttribList(recentUsers[:10], 'Views')
+#     print(extractedViews)
+#     assert ten_recent_user_views == extractedViews, "Extractedviews and first 10 user views are not equal!" 
 
 def main():
     # main function in which tests can be run
-    testExtractAttribList()
+    testRangeBinNumFt()
 
 if __name__ == '__main__':
     main()
