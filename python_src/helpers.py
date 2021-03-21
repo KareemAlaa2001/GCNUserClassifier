@@ -82,6 +82,10 @@ def range_bin_num_feature(num, thresholds):
 def rangeBinViews(views):
     return range_bin_num_feature(views, [0,10,100,1000,10000])
 
+# TODO complete function to range bin post, comment and user scores - NEED TO ACCOUNT FOR USER AND COMMENT SCORES IN BINS
+def rangeBinScore(score):
+    return range_bin_num_feature(score, [-10,0,5,10,20,50,100])
+
 
 # basic naive regex xml tag remover
 def cleanXML(string):

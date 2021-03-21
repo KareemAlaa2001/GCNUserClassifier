@@ -89,13 +89,13 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
-# recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
-# print("extracted posts")
+recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+print("extracted posts")
 # recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
 # print("extracted comments")
 
-recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
-print("extracted users")
+# recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
+# print("extracted users")
 
 # extract a list of all the instances of the specified attribute in the list of dicts
 
