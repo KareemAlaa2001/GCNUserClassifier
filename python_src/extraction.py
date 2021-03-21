@@ -15,11 +15,11 @@ def isCreatedAfter2019(post):
         return False    
 
 
-def filter2019Later(root):
+def getFilteredChildrenDict(filterFunc, root):
     relevant = []
 
     for child in root:
-        if (isCreatedAfter2019(child.attrib)):
+        if (filterFunc(child.attrib)):
             relevant.append(child.attrib)
 
     return relevant
@@ -64,6 +64,16 @@ def getRecentlyAccessedusers(root):
 
     return relevant, userdict
 
+def extractConnectedUsers(root, useriddict):
+    connectedUsers = []
+
+    for child in root:
+        userid = child.attrib.get('Id')
+        if useriddict.get(userid) is not None:
+            connectedUsers.append(child.attrib)
+
+    return connectedUsers
+
 def listChildrenAttrib(node):
     childAttrib = []
     for child in node:
@@ -82,6 +92,18 @@ def extractAttribList(dictlist, attrib):
 
     return attList
 
+def constructRelevantUserIdDict(posts, comments):
+    relevantUsers = {}
+
+    for post in posts:
+        relevantUsers[post.get('OwnerUserId')] = 1
+
+    for comment in comments:
+        relevantUsers[comment.get('UserId')] = 1
+
+    return relevantUsers
+
+
 metaFolder = "../datasets/meta.stackoverflow.com/"
 toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
 # Files to truncate by CreationDate: Posts, Comments, PostHistory, Votes, PostLinks
@@ -89,14 +111,18 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
-recentPosts = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+recentPosts = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
-# recentComments = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
-# print("extracted comments")
 
-# recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
-# print("extracted users")
+recentComments = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
+print("extracted comments")
 
+# TODO change the way users are extracted to reflect the comment and post lists we're working with, current list has too many isolated nodes
+recentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
+print("extracted users")
+
+connectedUsers = extractConnectedUsers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
+print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 
 

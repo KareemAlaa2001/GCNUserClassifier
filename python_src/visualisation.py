@@ -1,5 +1,5 @@
 #%%
-from extraction import recentPosts, extractAttribList
+from extraction import recentPosts, recentComments, recentUsers, extractAttribList
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +24,21 @@ n_bins = 10
 
 postScoreList = extractAttribList(recentPosts, 'Score')
 
+print("Post score list size:", len(postScoreList))
+print("Post Scores: ")
 print(postScoreList[:1000])
+
+commentScoreList = extractAttribList(recentComments, 'Score')
+
+print("Comment score list size:", len(commentScoreList))
+print("Comment Scores: ")
+print(commentScoreList[:1000])
+
+userRepList = extractAttribList(recentUsers, 'Reputation' )
+
+print("User rep list size:", len(userRepList))
+print("User Reputations: ")
+print(userRepList[-1000:])
 
 # # Generate a normal distribution, center at x=0 and y=5
 # # x = np.random.randn(N_points)
