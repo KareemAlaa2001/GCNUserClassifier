@@ -79,14 +79,20 @@ def range_bin_num_feature(num, thresholds):
 
     return rbinvec
     
-# TODO currently arbitrary number of views bins based on what was observed from a sample
+# views bins where based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinViews(views):
-    return range_bin_num_feature(views, [0,10,100,1000,10000])
+    return range_bin_num_feature(views, [0,10,100,1000])
 
-# TODO complete function to range bin post, comment and user scores - NEED TO ACCOUNT FOR USER AND COMMENT SCORES IN BINS
+# score bins where based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinScore(score):
-    return range_bin_num_feature(score, [-10,0,5,10,20,50,100])
+    return range_bin_num_feature(score, [-10,-1,0,2,5,10,100,1000,10000,100000])
 
+def rangeBinAnswerOrCommentCount(count):
+    return range_bin_num_feature(count, [0,2,5,10,20])
+
+# takes a list of string (or any other type) values and maps them to ints
+def toIntList(lst):
+    return list(map(lambda x: int(x), lst))
 
 # basic naive regex xml tag remover
 def cleanXML(string):

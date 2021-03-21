@@ -1,6 +1,6 @@
 #%%
-from extraction import recentPosts, recentComments, recentUsers, extractAttribList
-from helpers import flatten
+from extraction import extractAttribListIgnoreNones, recentPosts, recentComments, recentUsers, extractAttribList
+from helpers import flatten, toIntList
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
@@ -12,7 +12,7 @@ np.random.seed(19680801)
 # N_points = 100000
 # n_bins = 10
 
-# viewsList = extractAttribList(recentUsers, 'Views')
+viewsList = extractAttribList(recentUsers, 'Views')
 
 # print(viewsList[:200])
 # # plt.xticks(np.arange(0, 1, step=0.1), np.arange(0,10000, 1000))
@@ -23,30 +23,30 @@ np.random.seed(19680801)
 # plt.show()
 #%%
 
-postScoreList = extractAttribList(recentPosts, 'Score')
+# postScoreList = extractAttribList(recentPosts, 'Score')
 
-print("Post score list size:", len(postScoreList))
-print("Post Scores: ")
-print(postScoreList[:100])
+# print("Post score list size:", len(postScoreList))
+# print("Post Scores: ")
+# print(postScoreList[:100])
 
-commentScoreList = extractAttribList(recentComments, 'Score')
+# commentScoreList = extractAttribList(recentComments, 'Score')
 
-print("Comment score list size:", len(commentScoreList))
-print("Comment Scores: ")
-print(commentScoreList[:100])
+# print("Comment score list size:", len(commentScoreList))
+# print("Comment Scores: ")
+# print(commentScoreList[:100])
 
-userRepList = extractAttribList(recentUsers, 'Reputation' )
+# userRepList = extractAttribList(recentUsers, 'Reputation' )
 
-print("User rep list size:", len(userRepList))
-print("User Reputations: ")
-print(userRepList[-100:])
+# print("User rep list size:", len(userRepList))
+# print("User Reputations: ")
+# print(userRepList[-100:])
 
-concatScoreList = flatten([postScoreList, commentScoreList, userRepList])
-intScores = list(map(lambda x: int(x), concatScoreList))
-print(intScores[:100])
+# concatScoreList = flatten([postScoreList, commentScoreList, userRepList])
+# intScores = list(map(lambda x: int(x), concatScoreList))
+# print(intScores[:100])
 
 
-plt.hist(intScores, alpha=0.5, bins=np.arange(min(intScores), max(intScores) + 100, 100))
+# plt.hist(intScores, alpha=0.5, bins=np.arange(min(intScores), max(intScores) + 100, 100))
 # # Generate a normal distribution, center at x=0 and y=5
 # # x = np.random.randn(N_points)
 # # y = .4 * x + np.random.randn(100000) + 5
@@ -78,7 +78,18 @@ def test_bins(list, thresholds):
 
     return counts
 
-print(test_bins(intScores, [-10,-1,0,5,10,20,50,100,1000,10000,100000]))
+# print(test_bins(intScores, [-10,-1,0,2,5,10,100,1000,10000,100000]))
+# %%
+viewsList = toIntList(extractAttribList(recentUsers, 'Views'))
+# print(test_bins(viewsList, [0,10,100,1000]))
+
+
+answerCounts = toIntList(extractAttribListIgnoreNones(recentPosts, 'AnswerCount'))
+commentCounts = toIntList(extractAttribListIgnoreNones(recentPosts, 'CommentCount'))
+
+print(test_bins(answerCounts, [0,2,5,10,20]))
+print(test_bins(commentCounts, [0,2,5,10,20]))
+
 
 
 # %%

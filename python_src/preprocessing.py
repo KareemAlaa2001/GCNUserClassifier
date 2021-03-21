@@ -67,22 +67,30 @@ def postToFV(post, client):
     postner = getPostNER(post, client)
 
     fv.append([
-        1.0,0.0,0.0,
-        float(post['Score']),
-        sotimeToTimestamp(post['CreationDate'])
+        1.0,0.0,0.0
         ])
-
+    
+    fv.append(rangeBinScore(float(post['Score'])))
+        
+    fv.append(sotimeToTimestamp(post['CreationDate']))
+        
     fv.append(postner)
+
     if post['PostTypeId'] == '1':
         fv.append(rangeBinViews(post['ViewCount']))
         fv.append([
             sotimeToTimestamp(post['LastActivityDate']),
-            0.0,0.0,
-            float(post['AnswerCount']),
-            float(post['CommentCount'])])
+            0.0,0.0]
+            )
+
+        fv.append(rangeBinAnswerOrCommentCount(float(post['AnswerCount'])))
+        fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
+        
     else:
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-        fv.append([sotimeToTimestamp(post['LastActivityDate']),0.0,0.0,0.0,float(post['CommentCount'])])
+        fv.append([sotimeToTimestamp(post['LastActivityDate']),0.0,0.0])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+        fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
 
     flat_vec = flatten(fv)
     return flat_vec
@@ -92,22 +100,26 @@ def userToFV(user, client):
     userner = convertStringToNER(user['AboutMe'], client)
 
     fv.append([
-        0.0,1.0,0.0,
-        float(user['Reputation']),
-        sotimeToTimestamp(user['CreationDate'])
+        0.0,1.0,0.0
     ])
+
+    fv.append(rangeBinScore(float(user['Reputation'])))
+
+    fv.append(sotimeToTimestamp(user['CreationDate']))
 
     fv.append(userner)
 
-    viewsVector = rangeBinViews(user['Views'])
+    viewsVector = rangeBinViews(float(user['Views']))
 
     fv.append(viewsVector)
     fv.append([
         float(user['LastAccessDate']),
         float(user['UpVotes']),
-        float(user['DownVotes']),
-        0.0,0.0
+        float(user['DownVotes'])
         ])
+    
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
     
     fv = flatten(fv)
 
@@ -118,17 +130,22 @@ def commentToFV(comment, client):
     commentner = convertStringToNER(comment['Text'], client)
 
     fv.append([
-        0.0,0.0,1.0,
-        float(comment['Score']),
-        sotimeToTimestamp(comment['CreationDate'])
+        0.0,0.0,1.0
         ])
+
+    fv.append(rangeBinScore(float(comment['Score'])))
+    
+    fv.append(sotimeToTimestamp(comment['CreationDate']))
 
     fv.append(commentner)
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
 
-    fv.append([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ])
+    fv.append([ 0.0, 0.0, 0.0, 0.0])
 
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    
     fv = flatten(fv)
 
     return fv
@@ -143,8 +160,8 @@ def getPostNER(post, client):
         titleNER = convertStringToNER(post['Title'], client)
         nerVector = np.array(titleNER) + np.array(bodyNER)
 
-
     return nerVector
+
 
 
 

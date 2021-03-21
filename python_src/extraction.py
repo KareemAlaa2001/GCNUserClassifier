@@ -83,6 +83,15 @@ def extractAttribList(dictlist, attrib):
 
     return attList
 
+def extractAttribListIgnoreNones(dictlist, attrib):
+    attList = []
+
+    for entry in dictlist:
+        if entry.get(attrib) is not None:
+            attList.append(entry.get(attrib))
+
+    return attList
+
 def constructRelevantUserIdDict(posts, comments):
     relevantUsers = {}
 
