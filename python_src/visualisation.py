@@ -14,15 +14,17 @@ n_bins = 10
 
 viewsList = extractAttribList(recentUsers, 'Views')
 
-print(viewsList[:100])
+print(viewsList[:200])
 # plt.xticks(np.arange(0, 1, step=0.1), np.arange(0,10000, 1000))
+nonZeroes = list(filter(lambda x: int(x) != 0, viewsList))
 
-# plt.hist(viewsList, bins=n_bins)
-# plt.show()
+print(nonZeroes[:200])
+plt.hist(nonZeroes, bins=n_bins)
+plt.show()
 
 # # Generate a normal distribution, center at x=0 and y=5
-# x = np.random.randn(N_points)
-# y = .4 * x + np.random.randn(100000) + 5
+# # x = np.random.randn(N_points)
+# # y = .4 * x + np.random.randn(100000) + 5
 
 # fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
 

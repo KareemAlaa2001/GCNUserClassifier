@@ -47,10 +47,10 @@ FEATUREVECTOR DOCUMENTATION:
     [ Post, User, Comment,
  
  Common ALL3:
-    Score/Reputation, CreationDate (converted to timestamp), NER, 
+    Score/Reputation[need to bin], CreationDate (converted to timestamp)[need to bin], NER, 
 
  Common POST & USER (fomat: User/Post):
-    Views/ViewCount, LastAccessDate/LastActivityDate (TO TIMESTAMP)
+    Views/ViewCount[6-dim array for 6 possible bins], LastAccessDate/LastActivityDate (TO TIMESTAMP) [need to bin]
 
  Unique to User:
     Upvotes, Downvotes
@@ -74,13 +74,15 @@ def postToFV(post, client):
 
     fv.append(postner)
     if post['PostTypeId'] == '1':
-        fv.append([float(post['ViewCount']),
+        fv.append(rangeBinViews(post['ViewCount']))
+        fv.append([
             sotimeToTimestamp(post['LastActivityDate']),
             0.0,0.0,
             float(post['AnswerCount']),
             float(post['CommentCount'])])
     else:
-        fv.append([0.0,sotimeToTimestamp(post['LastActivityDate']),0.0,0.0,0.0,float(post['CommentCount'])])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+        fv.append([sotimeToTimestamp(post['LastActivityDate']),0.0,0.0,0.0,float(post['CommentCount'])])
 
     flat_vec = flatten(fv)
     return flat_vec
@@ -97,10 +99,10 @@ def userToFV(user, client):
 
     fv.append(userner)
 
-    viewsVector = range_bin_num_feature(user['Views'], [])
+    viewsVector = rangeBinViews(user['Views'])
 
+    fv.append(viewsVector)
     fv.append([
-        float(user['Views']),
         float(user['LastAccessDate']),
         float(user['UpVotes']),
         float(user['DownVotes']),
@@ -122,6 +124,8 @@ def commentToFV(comment, client):
         ])
 
     fv.append(commentner)
+
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
 
     fv.append([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ])
 

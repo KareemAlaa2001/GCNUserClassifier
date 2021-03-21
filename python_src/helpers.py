@@ -37,6 +37,7 @@ def convertStringToNER(string, client):
     return nerVector
 
 # builds an NER occurences vector from an annotation
+# changed to set the value to 1 rather than incrementing to larger values. Keeps max inp values at 1 for NN
 def buildNERVector(ann):
     nerVector = np.zeros(24)
     sentences = ann.sentence
@@ -46,7 +47,7 @@ def buildNERVector(ann):
         for tok in tokens:
             if tok.ner != 'O':
                 index = entityTypes.index(tok.ner)
-                nerVector[index] += 1
+                nerVector[index] = 1
 
     return nerVector
 
@@ -77,7 +78,9 @@ def range_bin_num_feature(num, thresholds):
 
     return rbinvec
     
-
+# TODO currently arbitrary number of views bins based on what was observed from a sample
+def rangeBinViews(views):
+    return range_bin_num_feature(views, [0,10,100,1000,10000])
 
 
 # basic naive regex xml tag remover

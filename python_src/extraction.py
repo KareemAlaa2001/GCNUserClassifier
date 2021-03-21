@@ -1,4 +1,3 @@
-from collections import UserDict
 import numpy
 import xml.etree.ElementTree as ET
 import os
@@ -72,6 +71,16 @@ def listChildrenAttrib(node):
 
     return childAttrib
         
+def extractAttribList(dictlist, attrib):
+    if dictlist[0].get(attrib) is None:
+        raise Exception("Passed attrib is not an attribute of the dictionaries in the list!")
+
+    attList = []
+
+    for entry in dictlist:
+        attList.append(entry.get(attrib))
+
+    return attList
 
 metaFolder = "../datasets/meta.stackoverflow.com/"
 toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
@@ -89,16 +98,7 @@ recentUsers, userDict = getRecentlyAccessedusers(ET.parse("../datasets/meta.stac
 print("extracted users")
 
 # extract a list of all the instances of the specified attribute in the list of dicts
-def extractAttribList(dictlist, attrib):
-    if dictlist[0].get(attrib) is None:
-        raise Exception("Passed attrib is not an attribute of the dictionaries in the list!")
 
-    attList = []
-
-    for entry in dictlist:
-        attList.append(entry.get(attrib))
-
-    return attList
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")
@@ -118,50 +118,3 @@ def extractAttribList(dictlist, attrib):
 
 # recentTags = listChildrenAttrib(ET.parse("../datasets/meta.stackoverflow.com/Tags.xml").getroot())
 # print("ye8")
-
-
-
-
-
-
-
-
-    
-
-
-  
-    
-
-
-
-
-
-
-
-
-"""
-stanza.download('en')
-nlp = stanza.Pipeline('en')
-
-test_str = "<xml>Stanford University is located in California. It is a great university.</xml>"
-
-
-doc = nlp(test_str)
-print(doc)
-print(doc.entities)
-
-# def getRelevantComments(commentsRoot, relevantPosts):
-#     relevantComments = []
-
-#     for comment in commentsRoot:
-
-#         if (isCreatedAfter2019(comment.attrib)):
-#             parentid = comment.attrib.get('PostId')
-
-#             # check in the relevant posts list for a post with the id
-#             relevantParentPost = next((post for post in relevantPosts if post["Id"] == parentid), None)
-#             if relevantParentPost is not None:
-#                 relevantComments.append(comment.attrib)
-
-#     return relevantComments
-"""
