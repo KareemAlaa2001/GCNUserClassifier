@@ -104,6 +104,8 @@ def cleanXML(string):
 def flatten(listofLists):
     return [item for sublist in listofLists for item in sublist]
 
+def calc_duration_active(creation, latest):
+    return abs(creation - latest)
 
 def user_accessed_recently(user):
     last_access = user.get('LastAccessDate')

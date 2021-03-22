@@ -76,22 +76,25 @@ def postToFV(post, client):
         
     fv.append(postner)
 
+    # If the post is a parent post in a thread
     if post['PostTypeId'] == '1':
         fv.append(rangeBinViews(post['ViewCount']))
-        fv.append([
-            sotimeToTimestamp(post['LastActivityDate'])])
 
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-        
+        fv.append([sotimeToTimestamp(post['LastActivityDate'])])
+
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
+
         fv.append(rangeBinAnswerOrCommentCount(float(post['AnswerCount'])))
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
         
     else:
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append([sotimeToTimestamp(post['LastActivityDate'])])
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
+
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
 
@@ -121,8 +124,8 @@ def userToFV(user, client):
     fv.append(rangeBinUpDownVotes(float(user['UpVotes'])))
     fv.append(rangeBinUpDownVotes(float(user['DownVotes'])))
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
     
     fv = flatten(fv)
 
@@ -134,23 +137,23 @@ def commentToFV(comment, client):
 
     fv.append([
         0.0,0.0,1.0
-        ])
+        ]) # Post, User or Comment
 
-    fv.append(rangeBinScore(float(comment['Score'])))
+    fv.append(rangeBinScore(float(comment['Score']))) 
     
     fv.append(sotimeToTimestamp(comment['CreationDate']))
 
     fv.append(commentner)
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
 
-    fv.append([ 0.0, 0.0])
+    fv.append([ 0.0]) # Last Access/Activity Date
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Downvotes
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
+    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
 
     fv = flatten(fv)
 

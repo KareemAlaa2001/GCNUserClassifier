@@ -93,6 +93,9 @@ commentCounts = toIntList(extractAttribListIgnoreNones(recentPosts, 'CommentCoun
 upvotes = toIntList(extractAttribList(recentUsers, 'UpVotes'))
 downvotes = toIntList(extractAttribList(recentUsers, 'DownVotes'))
 
+plt.hist(upvotes, bins=[5,10,50,100,500,1000,5000])
+plt.show()
+
 print(test_bins(upvotes, [0,2,5,10,20,50,100,1000]))
 print(test_bins(downvotes, [0,2,5,10,20,50,100,1000]))
 
