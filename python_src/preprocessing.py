@@ -47,7 +47,7 @@ FEATUREVECTOR DOCUMENTATION:
     [ Post, User, Comment,
  
  Common ALL3:
-    Score/Reputation[need to bin], CreationDate (converted to timestamp)[need to bin], NER, 
+    Score/Reputation[need to bin], ActiveDuration (rangebinned timestamps), NER, 
 
  Common POST & USER (fomat: User/Post):
     Views/ViewCount[6-dim array for 6 possible bins], LastAccessDate/LastActivityDate (TO TIMESTAMP) [need to bin]
@@ -96,8 +96,8 @@ def postToFV(post, client):
         
     else:
         fv.append(rangeBinViews(post['ViewCount']))
-        
-        fv.append([sotimeToTimestamp(post['LastActivityDate'])])
+
+        # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
@@ -122,7 +122,13 @@ def userToFV(user, client):
 
     fv.append(rangeBinScore(float(user['Reputation'])))
 
-    fv.append(sotimeToTimestamp(user['CreationDate']))
+    # fv.append(sotimeToTimestamp(user['CreationDate']))
+
+    activeDuration = calc_duration_active(
+        creation=sotimeToTimestamp(user['CreationDate']), 
+        latest=sotimeToTimestamp(user['LastAccessDate']))
+
+    fv.append(rangeBinActiveDuration(activeDuration))
 
     fv.append(userner)
 
@@ -130,7 +136,7 @@ def userToFV(user, client):
 
     fv.append(viewsVector)
 
-    fv.append(sotimeToTimestamp(user['LastAccessDate']))
+    # fv.append(sotimeToTimestamp(user['LastAccessDate']))
     
     fv.append(rangeBinUpDownVotes(float(user['UpVotes'])))
     fv.append(rangeBinUpDownVotes(float(user['DownVotes'])))
@@ -154,13 +160,17 @@ def commentToFV(comment, client):
 
     fv.append(rangeBinScore(float(comment['Score']))) 
     
-    fv.append(sotimeToTimestamp(comment['CreationDate']))
+
+    activeDuration = calc_duration_active(
+        creation=sotimeToTimestamp(comment['CreationDate']), 
+        latest=sotimeToTimestamp(comment['LastActivityDate']))
+
+    fv.append(rangeBinActiveDuration(activeDuration))
 
     fv.append(commentner)
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
 
-    fv.append([sotimeToTimestamp(comment['LastActivityDate'])]) # Last Access/Activity Date
     # TODO convert this representation to duration
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Downvotes
