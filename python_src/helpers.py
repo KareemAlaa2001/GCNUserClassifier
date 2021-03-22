@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import re
 
@@ -28,6 +28,11 @@ def sotimeToTimestamp(datetimestr):
 
    dt = datetime(year,month,day,hour,minute,sec,ms*1000)
    return datetime.timestamp(dt)
+
+# Creates a timedelta object between the 2 passed timestamps
+def calc_duration_active(creation, latest):
+    return latest - creation
+
 
 # THIS FUNCTION CAN BE EXPANDED TO INCLUDE ANY FUTURE ADDITIONAL PREPROCESSING NEEDED FOR THE STRING
 def convertStringToNER(string, client):
@@ -78,12 +83,18 @@ def range_bin_num_feature(num, thresholds):
         rbinvec[-1] = 1
 
     return rbinvec
+
+# duration bins were based on activity periods of users and posts
+def rangeBinActiveDuration(creation, last):
+    duration = calc_duration_active(creation=creation, latest=last)
+
+    return range_bin_num_feature(duration, [60,3600,86400,604800,2629743,31556926, 31556926*5,31556926*10]) 
     
-# views bins where based on what was observed as a distribution of values in the concat score list of users, posts and comments
+# views bins were based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinViews(views):
     return range_bin_num_feature(views, [0,10,100,1000])
 
-# score bins where based on what was observed as a distribution of values in the concat score list of users, posts and comments
+# score bins were based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinScore(score):
     return range_bin_num_feature(score, [-10,-1,0,2,5,10,100,1000,10000,100000])
 
@@ -103,9 +114,6 @@ def cleanXML(string):
 
 def flatten(listofLists):
     return [item for sublist in listofLists for item in sublist]
-
-def calc_duration_active(creation, latest):
-    return abs(creation - latest)
 
 def user_accessed_recently(user):
     last_access = user.get('LastAccessDate')

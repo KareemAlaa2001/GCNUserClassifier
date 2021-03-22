@@ -14,7 +14,6 @@ def isCreatedAfter2019(post):
     else:
         return False    
 
-
 def getFilteredChildrenDict(filterFunc, root):
     relevant = []
 
@@ -65,12 +64,12 @@ def extractConnectedUsers(root, useriddict):
 
     return connectedUsers
 
-def listChildrenAttrib(node):
-    childAttrib = []
-    for child in node:
-        childAttrib.append(child.attrib)
+# def listChildrenAttrib(node):
+#     childAttrib = []
+#     for child in node:
+#         childAttrib.append(child.attrib)
 
-    return childAttrib
+#     return childAttrib
         
 def extractAttribList(dictlist, attrib):
     if dictlist[0].get(attrib) is None:
@@ -103,6 +102,45 @@ def constructRelevantUserIdDict(posts, comments):
 
     return relevantUsers
 
+def extractPosts(root):
+    postList = []
+    postDict = {}
+
+    for child in root:
+        attributes = child.attrib
+        if (isCreatedAfter2019(attributes)):
+
+            postList.append(attributes)
+            postDict[attributes.get('Id')] = attributes
+
+    return postList, postDict
+
+def removeUnlinkedComments(comments, postDict):
+    linkedComments = []
+
+    for comment in comments:
+        if postDict.get(comment.get('PostId')) is not None:
+            linkedComments.append(comment)
+
+    return linkedComments
+
+def addCommentsLastActivityFromParent(comments, postDict):
+
+    for comment in comments:
+        parentPost = postDict.get(comment.get('PostId'))
+        comment['LastActivityDate'] = parentPost.get('LastActivityDate')
+
+    return comments
+
+def pre_preprocessCommentsList(comments, postDict):
+    filtered = removeUnlinkedComments(comments, postDict)
+    activityadded = addCommentsLastActivityFromParent(filtered, postDict)
+    return activityadded
+
+def extractComments(filteringfunc, commentsroot, postsDict):
+    initialCommentsList = getFilteredChildrenDict(filteringfunc, commentsroot)
+    commentsList = pre_preprocessCommentsList(initialCommentsList, postsDict)
+    return commentsList
 
 metaFolder = "../datasets/meta.stackoverflow.com/"
 toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
@@ -110,6 +148,8 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
 # Users will be truncated by last access date
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
+
+recentPosts, postDict = extractPosts(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 
 recentPosts = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")

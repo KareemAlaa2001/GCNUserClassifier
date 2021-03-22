@@ -71,8 +71,14 @@ def postToFV(post, client):
         ])
     
     fv.append(rangeBinScore(float(post['Score'])))
-        
-    fv.append(sotimeToTimestamp(post['CreationDate']))
+    
+    activeDuration = calc_duration_active(
+        creation=sotimeToTimestamp(post['CreationDate']), 
+        latest=sotimeToTimestamp(post['LastActivityDate']))
+
+    fv.append(rangeBinActiveDuration(activeDuration))
+
+    # fv.append(sotimeToTimestamp(post['CreationDate']))
         
     fv.append(postner)
 
@@ -80,7 +86,7 @@ def postToFV(post, client):
     if post['PostTypeId'] == '1':
         fv.append(rangeBinViews(post['ViewCount']))
 
-        fv.append([sotimeToTimestamp(post['LastActivityDate'])])
+        # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
@@ -89,7 +95,7 @@ def postToFV(post, client):
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
         
     else:
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
+        fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Post Views
         fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
@@ -147,8 +153,8 @@ def commentToFV(comment, client):
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
 
-    fv.append([ 0.0]) # Last Access/Activity Date
-
+    fv.append([sotimeToTimestamp(comment['LastActivityDate'])]) # Last Access/Activity Date
+    # TODO convert this representation to duration
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Downvotes
 

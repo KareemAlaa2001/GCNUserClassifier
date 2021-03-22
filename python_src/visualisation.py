@@ -1,18 +1,31 @@
 #%%
 from extraction import extractAttribListIgnoreNones, recentPosts, recentComments, recentUsers, extractAttribList
-from helpers import flatten, toIntList
+from helpers import flatten, toIntList, sotimeToTimestamp
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
 from matplotlib.ticker import PercentFormatter
 
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-# N_points = 100000
-# n_bins = 10
+def test_bins(list, thresholds):
+    counts = np.zeros(len(thresholds) + 1)
+    
+    for num in list:
+        inRange = False
 
-viewsList = extractAttribList(recentUsers, 'Views')
+        for i in range(len(thresholds)):
+            if num > thresholds[i]:
+                continue
+            else:
+                counts[i] += 1
+                inRange = True
+                break
+    
+        if not inRange:
+            counts[-1] += 1
+
+    return counts
+
 
 # print(viewsList[:200])
 # # plt.xticks(np.arange(0, 1, step=0.1), np.arange(0,10000, 1000))
@@ -58,27 +71,6 @@ viewsList = extractAttribList(recentUsers, 'Views')
 # axs[1].hist(y, bins=n_bins)
 
 
- # %%
-def test_bins(list, thresholds):
-    counts = np.zeros(len(thresholds) + 1)
-    
-    for num in list:
-        inRange = False
-
-        for i in range(len(thresholds)):
-            if num > thresholds[i]:
-                continue
-            else:
-                counts[i] += 1
-                inRange = True
-                break
-    
-        if not inRange:
-            counts[-1] += 1
-
-    return counts
-
-# print(test_bins(intScores, [-10,-1,0,2,5,10,100,1000,10000,100000]))
 # %%
 viewsList = toIntList(extractAttribList(recentUsers, 'Views'))
 # print(test_bins(viewsList, [0,10,100,1000]))
@@ -100,4 +92,40 @@ print(test_bins(upvotes, [0,2,5,10,20,50,100,1000]))
 print(test_bins(downvotes, [0,2,5,10,20,50,100,1000]))
 
 
+# %%
+
+postCreationDates = extractAttribList(recentPosts, 'CreationDate')
+postLastActivities = extractAttribList(recentPosts, 'LastActivityDate')
+
+print(len(postCreationDates), len(postLastActivities))
+
+postdurations = [sotimeToTimestamp(latest)-sotimeToTimestamp(creation) for creation,latest in zip(postCreationDates, postLastActivities)]
+
+timeMilestones = [60,3600,86400,604800,2629743,31556926] # 1 min, 1 hr, 1 day, 1 week, 1 month, 1 year
+
+print("Post activity durations: ")
+print(test_bins(postdurations, [60,3600,86400,604800,2629743,31556926])) 
+
+
+
+userCreationDates = extractAttribList(recentUsers, 'CreationDate')
+userLastAccessDates = extractAttribList(recentUsers, 'LastAccessDate')
+
+print(len(userCreationDates), len(userLastAccessDates))
+
+userdurations = [sotimeToTimestamp(latest)-sotimeToTimestamp(creation) for creation,latest in zip(userCreationDates, userLastAccessDates)]
+
+print("User activity durations: ")
+print(test_bins(userdurations, [60,3600,86400,604800,2629743,31556926, 31556926*5,31556926*10])) 
+
+plt.hist(userdurations, bins=[60,3600,86400,604800,2629743,31556926, 31556926*5,31556926*10, 31556926*20])
+plt.show()
+
+concatdurations = postdurations + userdurations
+
+plt.hist(concatdurations, bins=[60,3600,86400,604800,2629743,31556926, 31556926*5,31556926*10, 31556926*20])
+plt.show()
+
+print(len(postdurations))
+print(len(userdurations))
 # %%
