@@ -149,12 +149,13 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
+# TODO sort out extractposts to separate extraction and processing like comments
 recentPosts, postDict = extractPosts(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 
 recentPosts = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
 
-recentComments = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot())
+recentComments = extractComments(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
 print("extracted comments")
 
 # OLDrecentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
