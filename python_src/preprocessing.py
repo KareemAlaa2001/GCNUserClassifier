@@ -56,7 +56,7 @@ FEATUREVECTOR DOCUMENTATION:
     Upvotes, Downvotes
  
  Unique to Post:
-    AnswerCount, CommentCount]
+    AnswerCount, CommentCount, IsAcceptedAnswer]
 
 MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
 
@@ -95,7 +95,8 @@ def postToFV(post, client):
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
         
     else:
-        fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Post Views
+        fv.append(rangeBinViews(post['ViewCount']))
+        
         fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
@@ -104,9 +105,13 @@ def postToFV(post, client):
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
 
+    fv.append(float(post['IsAcceptedAnswer']))
+
     flat_vec = flatten(fv)
     return flat_vec
 
+# Function to construct the featurevector representing the user dictionary passed
+# Params: user - user dictionary, client - CoreNLP client for NER
 def userToFV(user, client):
     fv = []
     userner = convertStringToNER(user['AboutMe'], client)
@@ -133,6 +138,8 @@ def userToFV(user, client):
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
     
+    fv.append(0.0) # Post.IsAcceptedAnswer
+
     fv = flatten(fv)
 
     return fv
@@ -160,6 +167,8 @@ def commentToFV(comment, client):
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
+
+    fv.append(0.0) # Post.IsAcceptedAnswer
 
     fv = flatten(fv)
 
@@ -264,6 +273,7 @@ POST:
         Tags [Need to build a vector for that]
         AnswerCount
         CommentCount
+        IsAcceptedAnswer
     User:
         Reputation
         CreationDate
@@ -286,30 +296,6 @@ Fields to share:
 - Can share NER fields (obviously)
 
 """
-# WILL GO WITH THE IDEA OF HAVING NER SLOTS IN COMMON THEN HAVING EXTRA SLOTS FOR DIFFERENT METADATA. 
-
-"""
-FEATUREVECTOR DOCUMENTATION:
-
- This will keep track of what each slot in the FV corresponds to.
-
- Common ALL3:
-    [Score/Reputation, CreationDate (converted to timestamp), NER, 
-
- Common POST & USER (fomat: User/Post):
-    Views/ViewCount, LastAccessDate/LastActivityDate (TO TIMESTAMP)
-
- Unique to User:
-    Upvotes, Downvotes
- 
- Unique to Post:
-    AnswerCount, CommentCount, TAGS? ]
-
-MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
-
-"""
-
-
 
 """
 entityTypes = ["PERSON", "LOCATION", "ORGANIZATION", "MISC", "MONEY", "NUMBER", 

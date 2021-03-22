@@ -14,7 +14,7 @@ def isCreatedAfter2019(post):
     else:
         return False    
 
-def getFilteredChildrenDict(filterFunc, root):
+def getFilteredChildrenList(filterFunc, root):
     relevant = []
 
     for child in root:
@@ -102,19 +102,66 @@ def constructRelevantUserIdDict(posts, comments):
 
     return relevantUsers
 
-def extractPosts(root):
-    postList = []
+"""
+POSTS
+FUNCTIONS FOR EXTRACTING AND PREPROCESSING POST DICTIONARIES
+"""
+
+def buildPostDict(posts):
     postDict = {}
 
-    for child in root:
-        attributes = child.attrib
-        if (isCreatedAfter2019(attributes)):
+    for post in posts:
+        postDict[post.get('Id')] = post
 
-            postList.append(attributes)
-            postDict[attributes.get('Id')] = attributes
+    return postDict
 
-    return postList, postDict
+def givePostsParentViews(posts, postsDict):
+    # NOTE if this breaks then remove the concurrent dict editing
+    for post in posts:
+        if post.get('PostTypeId') == '2':
+            parent = postsDict.get(post.get('ParentId'))
+            post['ViewCount'] = parent['ViewCount'] # concurrent editing here
+            postsDict.get(post.get('Id'))['ViewCount'] = parent['ViewCount']
 
+    return posts, postsDict
+
+def addAcceptedAnswerStatus(posts):
+
+    acceptedAnswerIds = {}
+
+    for post in posts:
+        
+        if post.get('AcceptedAnswerId') is not None:
+            answerid = post.get('AcceptedAnswerId')
+            acceptedAnswerIds[answerid] = '1'
+
+    for post in posts:
+        if acceptedAnswerIds.get(post.get('Id')) is not None:
+            post['IsAcceptedAnswer'] = '1.0'
+
+        else:
+            post['IsAcceptedAnswer'] = '0.0'
+
+    postsDict = buildPostDict(posts)
+    return posts, postsDict
+
+    
+
+def extractPosts(filterfunc,root):
+    initialPostList = getFilteredChildrenList(filterfunc, root)
+
+    # posts dict now built in here
+    acceptedAnswers, dict = addAcceptedAnswerStatus(initialPostList)
+
+    viewsAdded, dict = givePostsParentViews(initialPostList, postDict)
+    
+    return viewsAdded, dict
+
+
+'''
+COMMENTS
+FUNCTIONS FOR EXTRACTING AND PREPROCESSING COMMENT DICTIONARIES
+'''
 def removeUnlinkedComments(comments, postDict):
     linkedComments = []
 
@@ -138,7 +185,7 @@ def pre_preprocessCommentsList(comments, postDict):
     return activityadded
 
 def extractComments(filteringfunc, commentsroot, postsDict):
-    initialCommentsList = getFilteredChildrenDict(filteringfunc, commentsroot)
+    initialCommentsList = getFilteredChildrenList(filteringfunc, commentsroot)
     commentsList = pre_preprocessCommentsList(initialCommentsList, postsDict)
     return commentsList
 
@@ -149,10 +196,9 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
-# TODO sort out extractposts to separate extraction and processing like comments
-recentPosts, postDict = extractPosts(ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+recentPosts, postDict = extractPosts(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 
-recentPosts = getFilteredChildrenDict(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+recentPosts = getFilteredChildrenList(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
 
 recentComments = extractComments(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
