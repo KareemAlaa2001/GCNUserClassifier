@@ -1,4 +1,3 @@
-import extraction
 from extraction import recentPosts, recentComments
 import stanza
 
@@ -10,6 +9,8 @@ from helpers import *
 def main():
     text = "This is a testing sentence with Barack Obama and Marwan Pablo in Cairo, Egypt. I am also working at Tesco in Welwyn. Please also check out this url https://www.google.com."
 
+
+    
     with CoreNLPClient(
             annotators=['tokenize','ssplit','pos','lemma','ner'],
             timeout=30000,
@@ -39,6 +40,11 @@ def main():
 
             
     pass
+
+"""
+
+export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
+"""
 
 """
 FEATUREVECTOR DOCUMENTATION:
@@ -81,7 +87,7 @@ def postToFV(post, client):
 
     # If the post is a parent post in a thread
     if post['PostTypeId'] == '1':
-        fv.append(rangeBinViews(post.get('ViewCount')))
+        fv.append(rangeBinViews(float(post.get('ViewCount'))))
 
         # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
@@ -94,9 +100,10 @@ def postToFV(post, client):
     else:
         
         print(post)
+
         if post['ViewCount'] == '-1':
             raise Exception("Somehow set to -1 but not the actual viewcount???????")
-        fv.append(rangeBinViews(post['ViewCount']))
+        fv.append(rangeBinViews(float(post['ViewCount'])))
 
         # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
@@ -106,8 +113,8 @@ def postToFV(post, client):
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
 
-    fv.append(float(post['IsAcceptedAnswer']))
-
+    fv.append([float(post['IsAcceptedAnswer'])])
+    print(fv)
     flat_vec = flatten(fv)
     return flat_vec
 
@@ -142,7 +149,7 @@ def userToFV(user, client):
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
     
-    fv.append(0.0) # Post.IsAcceptedAnswer
+    fv.append([0.0]) # Post.IsAcceptedAnswer
 
     fv = flatten(fv)
 
@@ -171,7 +178,7 @@ def commentToFV(comment, client):
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
 
-    fv.append(0.0) # Post.IsAcceptedAnswer
+    fv.append([0.0]) # Post.IsAcceptedAnswer
 
     fv = flatten(fv)
 

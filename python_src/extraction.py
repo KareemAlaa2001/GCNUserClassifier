@@ -135,31 +135,20 @@ def removePostsWithMissingParents(posts, postsDict):
 
 def givePostsParentViews(posts, postsDict):
     editedPosts = []
-    # NOTE if this breaks then remove the concurrent dict editing NOTE apparently concurrent editing shouldnt break it??
+     
     for post in posts:
         if post.get('PostTypeId') == '2':
             parent = postsDict.get(post.get('ParentId'))
             if parent is not None:
-                
-                # TODO sortt out why these changes are not reflected in preprocessing.py
-                post['ViewCount'] = '-1'
-                post['ViewCount'] = parent['ViewCount'] # concurrent editing here
-                print("Set viewcount of post id",post['Id'],"to",post['ViewCount'])
-                if post.get('Id') == '378566':
-                    print(post)
-                if post.get('ViewCount') is None:
-                    raise Exception('Setting a viewcount does not work!')
+                postCopy = post.copy()
 
+                post['ViewCount'] = parent['ViewCount'] 
+                
                 postsDict.get(post.get('Id'))['ViewCount'] = parent['ViewCount']
 
             else:
                 raise Exception("There should not be any orphan answer posts in this list!!")
-
-        else:
-            editedPosts.append(post)
                 
-
-
     return posts, postsDict
 
 def addAcceptedAnswerStatus(posts):
@@ -192,11 +181,12 @@ def extractPosts(filterfunc,root):
     withoutOrphans = removePostsWithMissingParents(initialPostList, postsDict)
 
     # posts dict now built in here
-    acceptedAnswers, dict = addAcceptedAnswerStatus(withoutOrphans)
+    acceptedAnswers, pdict = addAcceptedAnswerStatus(withoutOrphans)
 
-    viewsAdded, dict = givePostsParentViews(acceptedAnswers, dict)
+    viewsAdded, pdict = givePostsParentViews(acceptedAnswers, pdict)
     
-    return viewsAdded, dict
+
+    return viewsAdded, pdict
 
 
 '''
@@ -238,9 +228,10 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # no edits: Tags
 
 recentPosts, postDict = extractPosts(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
-
-recentPosts = getFilteredChildrenList(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
+
+
+
 
 recentComments = extractComments(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
 print("extracted comments")
