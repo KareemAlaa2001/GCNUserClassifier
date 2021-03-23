@@ -115,13 +115,50 @@ def buildPostDict(posts):
 
     return postDict
 
-def givePostsParentViews(posts, postsDict):
-    # NOTE if this breaks then remove the concurrent dict editing
+def removePostsWithMissingParents(posts, postsDict):
+    linkedPosts = []
+
     for post in posts:
         if post.get('PostTypeId') == '2':
             parent = postsDict.get(post.get('ParentId'))
-            post['ViewCount'] = parent['ViewCount'] # concurrent editing here
-            postsDict.get(post.get('Id'))['ViewCount'] = parent['ViewCount']
+
+            if parent is not None:
+                linkedPosts.append(post)
+
+        else:
+            linkedPosts.append(post)
+    
+    return linkedPosts
+
+
+
+
+def givePostsParentViews(posts, postsDict):
+    editedPosts = []
+    # NOTE if this breaks then remove the concurrent dict editing NOTE apparently concurrent editing shouldnt break it??
+    for post in posts:
+        if post.get('PostTypeId') == '2':
+            parent = postsDict.get(post.get('ParentId'))
+            if parent is not None:
+                
+                # TODO sortt out why these changes are not reflected in preprocessing.py
+                post['ViewCount'] = '-1'
+                post['ViewCount'] = parent['ViewCount'] # concurrent editing here
+                print("Set viewcount of post id",post['Id'],"to",post['ViewCount'])
+                if post.get('Id') == '378566':
+                    print(post)
+                if post.get('ViewCount') is None:
+                    raise Exception('Setting a viewcount does not work!')
+
+                postsDict.get(post.get('Id'))['ViewCount'] = parent['ViewCount']
+
+            else:
+                raise Exception("There should not be any orphan answer posts in this list!!")
+
+        else:
+            editedPosts.append(post)
+                
+
 
     return posts, postsDict
 
@@ -150,10 +187,14 @@ def addAcceptedAnswerStatus(posts):
 def extractPosts(filterfunc,root):
     initialPostList = getFilteredChildrenList(filterfunc, root)
 
-    # posts dict now built in here
-    acceptedAnswers, dict = addAcceptedAnswerStatus(initialPostList)
+    postsDict = buildPostDict(initialPostList)
 
-    viewsAdded, dict = givePostsParentViews(initialPostList, postDict)
+    withoutOrphans = removePostsWithMissingParents(initialPostList, postsDict)
+
+    # posts dict now built in here
+    acceptedAnswers, dict = addAcceptedAnswerStatus(withoutOrphans)
+
+    viewsAdded, dict = givePostsParentViews(acceptedAnswers, dict)
     
     return viewsAdded, dict
 

@@ -24,6 +24,7 @@ def main():
         for i in range(100,110):
             samplePost = recentPosts[i]
             sampleComment = recentComments[i]
+            
             print("SAMPLE POST", i, ":")
             print(samplePost['Body'])
             print('\n')
@@ -71,12 +72,8 @@ def postToFV(post, client):
         ])
     
     fv.append(rangeBinScore(float(post['Score'])))
-    
-    activeDuration = calc_duration_active(
-        creation=sotimeToTimestamp(post['CreationDate']), 
-        latest=sotimeToTimestamp(post['LastActivityDate']))
 
-    fv.append(rangeBinActiveDuration(activeDuration))
+    fv.append(rangeBinActiveDuration(sotimeToTimestamp(post['CreationDate']),sotimeToTimestamp(post['LastActivityDate'])))
 
     # fv.append(sotimeToTimestamp(post['CreationDate']))
         
@@ -84,7 +81,7 @@ def postToFV(post, client):
 
     # If the post is a parent post in a thread
     if post['PostTypeId'] == '1':
-        fv.append(rangeBinViews(post['ViewCount']))
+        fv.append(rangeBinViews(post.get('ViewCount')))
 
         # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
@@ -95,6 +92,10 @@ def postToFV(post, client):
         fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
         
     else:
+        
+        print(post)
+        if post['ViewCount'] == '-1':
+            raise Exception("Somehow set to -1 but not the actual viewcount???????")
         fv.append(rangeBinViews(post['ViewCount']))
 
         # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
@@ -124,11 +125,8 @@ def userToFV(user, client):
 
     # fv.append(sotimeToTimestamp(user['CreationDate']))
 
-    activeDuration = calc_duration_active(
-        creation=sotimeToTimestamp(user['CreationDate']), 
-        latest=sotimeToTimestamp(user['LastAccessDate']))
+    fv.append(rangeBinActiveDuration(sotimeToTimestamp(user['CreationDate']),sotimeToTimestamp(user['LastAccessDate'])))
 
-    fv.append(rangeBinActiveDuration(activeDuration))
 
     fv.append(userner)
 
@@ -159,14 +157,9 @@ def commentToFV(comment, client):
         ]) # Post, User or Comment
 
     fv.append(rangeBinScore(float(comment['Score']))) 
+
+    fv.append(rangeBinActiveDuration(sotimeToTimestamp(comment['CreationDate']),sotimeToTimestamp(comment['LastActivityDate'])))
     
-
-    activeDuration = calc_duration_active(
-        creation=sotimeToTimestamp(comment['CreationDate']), 
-        latest=sotimeToTimestamp(comment['LastActivityDate']))
-
-    fv.append(rangeBinActiveDuration(activeDuration))
-
     fv.append(commentner)
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
