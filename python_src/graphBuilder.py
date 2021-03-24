@@ -1,7 +1,12 @@
 import numpy as np
 import random
+from fvBuilder import *
 from extraction import recentComments, recentPosts, recentUsers
 from helpers import *
+
+# def buildFeatureVectorList(data, client):
+#     pass
+
 
 # takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
 def buildGCNGraph(posts, users, comments):
@@ -10,7 +15,7 @@ def buildGCNGraph(posts, users, comments):
     idGraph = buildIdNeighbourhoodDict(posts, users, comments)
     gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
     
-    return gcngraph
+    return gcngraph, data
 
 #  appending all 3 lists into a big list and shuffling it
 def shuffleData(posts, users, comments):
