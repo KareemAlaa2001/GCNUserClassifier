@@ -3,6 +3,15 @@ import random
 from extraction import recentComments, recentPosts, recentUsers
 from helpers import *
 
+# takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
+def buildGCNGraph(posts, users, comments):
+    data = shuffleData(posts, users, comments)
+    indexGuide = buildIndexGuide(data)
+    idGraph = buildIdNeighbourhoodDict(posts, users, comments)
+    gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
+    
+    return gcngraph
+
 #  appending all 3 lists into a big list and shuffling it
 def shuffleData(posts, users, comments):
     
@@ -11,17 +20,16 @@ def shuffleData(posts, users, comments):
 
     return masterList
 
-def buildIndexGuide(posts, users, comments):
-    shuffledData = shuffleData(posts, users, comments)
+def buildIndexGuide(data):
 
     indexGuide = {
-        'posts':{},
-        'users':{},
-        'comments':{}
+        'post':{},
+        'user':{},
+        'comment':{}
     }
 
-    for i in range(len(shuffledData)):
-        entry = shuffledData[i]
+    for i in range(len(data)):
+        entry = data[i]
         entId = entry.get('Id')
 
         if entId is None:
@@ -29,11 +37,11 @@ def buildIndexGuide(posts, users, comments):
         
         # probably could replace this with a cleaner implementation that has the "type" returned from the helper func
         if isPost(entry):
-            indexGuide['posts'][entId] = i
+            indexGuide['post'][entId] = i
         elif isUser(entry):
-            indexGuide['users'][entId] = i
+            indexGuide['user'][entId] = i
         elif isComment(entry):
-            indexGuide['comments'][entId] = i
+            indexGuide['comment'][entId] = i
         else:
             raise Exception("Should either be a post, user or comment!")
 
@@ -77,6 +85,22 @@ def buildLikewiseRelationships(neighbourhoods):
                 neighbourhoods[neighbourtype][neighbourid][nodeid] = nodetype
     
     return neighbourhoods
+
+def convertIdGraphToIndexGraph(idGraph, indexGuide):
+    indexGraph = {}
+    for nodetype in idGraph:
+        for nodeid in idGraph[nodetype]:
+            nodeneighbourhood = idGraph[nodetype][nodeid]
+            neighbourlist = []
+            for neighbourid in nodeneighbourhood:
+                neighbourtype = nodeneighbourhood[neighbourid]
+                neighbourlist.append(indexGuide[neighbourtype][neighbourid])
+
+
+            nodeindex = indexGuide[nodetype][nodeid]
+            indexGraph[nodeindex] = neighbourlist
+    
+    return indexGraph
 
 """
 
