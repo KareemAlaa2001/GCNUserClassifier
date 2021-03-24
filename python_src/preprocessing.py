@@ -42,6 +42,17 @@ def main():
     pass
 
 """
+ TODO figure out how I'm going to return the featurevectors of all the posts, users and comments
+ Am I gonna return them separately? Will I put them all into one big matrix then split it later?
+ How will I handle indexing in that case?
+
+ Will I have an extra data structure that maps ids with indexes?
+"""
+def extractFeaturevectors(posts, users, comments, client):
+    
+    pass
+
+"""
 
 export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
 """

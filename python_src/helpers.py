@@ -124,3 +124,30 @@ def user_accessed_recently(user):
         return True
     else:
         return False   
+
+def isPost(entry):
+    if entry.get('PostTypeId') is None:
+        return False
+    
+    if entry.get('Score') is None:
+        return False
+
+    return True
+
+def isUser(entry):
+    if entry.get('Reputation') is None:
+        return False
+
+    if entry.get('LastAccessDate') is None:
+        return False
+
+    return True
+
+def isComment(entry):
+    if entry.get('PostId') is None:
+        return False
+
+    if entry.get('Text') is None:
+        return False
+
+    return True
