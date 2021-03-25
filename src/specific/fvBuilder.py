@@ -5,6 +5,9 @@ from stanza.server import CoreNLPClient
 import numpy as np
 from helpers import *
 
+"""
+export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
+"""
 
 def main():
     text = "This is a testing sentence with Barack Obama and Marwan Pablo in Cairo, Egypt. I am also working at Tesco in Welwyn. Please also check out this url https://www.google.com."
@@ -52,10 +55,7 @@ def extractFeaturevectors(posts, users, comments, client):
     
     pass
 
-"""
 
-export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
-"""
 
 """
 FEATUREVECTOR DOCUMENTATION:

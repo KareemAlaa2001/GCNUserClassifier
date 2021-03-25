@@ -5,15 +5,21 @@ import matplotlib.pyplot as plt
 from helpers import *
 # class DataExtractor:
 
-# checking if a post was made in 2019 or later
-def isCreatedAfter2019(post):
+# checking if a post was made in the cutoff year or later
+def isCreatedAfterYear(post, cutoffYear):
     creationDate = post.get('CreationDate')
     year = int(creationDate[:4])
-    if year >= 2019:
+    if year >= cutoffYear:
         return True
     else:
         return False    
 
+def isCreatedAfter2019(post):
+    return isCreatedAfterYear(post, 2019)
+
+
+
+# builds a list of dicts of children attributes based on satisfaction of the filtering function
 def getFilteredChildrenList(filterFunc, root):
     relevant = []
 
@@ -227,20 +233,18 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
-recentPosts, postDict = extractPosts(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+recentPosts, postDict = extractPosts(isCreatedAfter2019, ET.parse("../../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
 
 
-
-
-recentComments = extractComments(isCreatedAfter2019, ET.parse("../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
+recentComments = extractComments(isCreatedAfter2019, ET.parse("../../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
 print("extracted comments")
 
 # OLDrecentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
 # print("extracted users")
 
 # updated list of recent users to reflect those involved in comments and posts above rather than everyone that logged in 2019 or later
-recentUsers = extractConnectedUsers(ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
+recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 
