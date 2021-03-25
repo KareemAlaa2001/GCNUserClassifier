@@ -70,12 +70,12 @@ def extractConnectedUsers(root, useriddict):
 
     return connectedUsers
 
-# def listChildrenAttrib(node):
-#     childAttrib = []
-#     for child in node:
-#         childAttrib.append(child.attrib)
+def listChildrenAttrib(node):
+    childAttrib = []
+    for child in node:
+        childAttrib.append(child.attrib)
 
-#     return childAttrib
+    return childAttrib
         
 def extractAttribList(dictlist, attrib):
     if dictlist[0].get(attrib) is None:
