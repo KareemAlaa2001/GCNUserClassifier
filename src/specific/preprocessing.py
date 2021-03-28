@@ -9,7 +9,7 @@ def buildWholePipeline(data_dir, fileNames):
     # maps the "nodetype" to the root
     nodeTypeRoots = {}
 
-    #maps the filename to the nodetype
+    # maps the filename to the nodetype
     fileNameNodeTypes = {}
 
 
@@ -24,7 +24,7 @@ def buildWholePipeline(data_dir, fileNames):
 
     # code to extract the list of nodes of each type
     for nodetype in nodeTypeRoots:
-        data_dict[nodetype] = extractNodeType(root=nodeTypeRoots[nodetype], )
+        data_dict[nodetype] = extractNodeType(root=nodeTypeRoots[nodetype], filterFunc=isCreatedAfter2019)
 
 # This is VERY SO specific, but it does the job 
 def extractNodeType(root, filterFunc, **specialTypeArgs):
@@ -53,6 +53,10 @@ def extractNodeType(root, filterFunc, **specialTypeArgs):
                 else:
                     raise Exception("""Special type \"stackexchangeuser\" entered, 
                     but there was no named argument \"useriddict\" containing a dictionary of entries with keys (userid) """)
+        # there is a filtering function but no known types
+        else:
+            return getFilteredChildrenList(filterFunc=filterFunc, root=root)
+
 
 
 

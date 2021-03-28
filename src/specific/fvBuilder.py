@@ -182,7 +182,6 @@ def commentToFV(comment, client):
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
 
-    # TODO convert this representation to duration
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Downvotes
 
