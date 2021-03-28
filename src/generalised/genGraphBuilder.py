@@ -9,6 +9,48 @@ from helpers import *
 #     pass
 
 
+def main():
+    # TODO test the buildGCNGraph Function with a tricky masterdict & accompanying schema
+    # TODO verificationnnnnnnnn
+    masterdict = {
+        'typeA': [
+            {
+                'identifier': '1',
+                'daughter': ['69','420'],
+                'son':'25',
+                'feature2': 'Ya bish'
+            }
+        ], 'typeB': [
+
+        ]
+    }
+
+    # TODO build a nice fat verification function for any schemas passed in by library users
+    schema = {
+        'toptype': 'typeA',
+        'typeA': {
+            'idAtt': 'identifier',
+            'featureAtts': ['featureA', 'feature2','feature3'],
+            'linkAtts': {
+                'daughter': 'typeA',
+                'son': 'typeB',
+                'child':'typeA'
+                
+            }
+        },
+        'typeB': {
+            'idAtt': 'identifierB',
+            'featureAtts': ['featureA', 'feature2','feature3'],
+            'linkAtts': {
+                'daughter': 'typeB',
+                'son': 'typeA',
+                'child':'typeB'
+                
+            }
+        },
+    }
+    buildGCNGraph()
+
 # takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
 def buildGCNGraph(masterdict, schema):
     # data = shuffleData(masterdict)
@@ -17,20 +59,23 @@ def buildGCNGraph(masterdict, schema):
     idGraph = buildIdNeighbourhoodDict(masterdict, schema)
     gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
     
-    return gcngraph, # data # uncomment this once I figure out what Im doing with data
+    return gcngraph # data # uncomment this once I figure out what Im doing with data
 
+
+# Builds an indexGuide containing mappings of id:index for each type in the dataset
 def buildShuffledIndexGuide(masterdict, schema):
-    # list of indexes of length = number of entries in the masterdict
+    # list of indexes of length - number of entries in the masterdict
     indexes = [i for i in range(len(shuffleData(masterdict, schema)))]
     random.shuffle(indexes)
 
     indexGuide = initEmptyTypesDict(schema)
 
     i = 0
+
     for nodetype in masterdict:
         # looping over the list of entries in the respective type in the masterdict
         for entry in nodetype:
-            entId = entry.get('Id')
+            entId = entry.get(schema.get(nodetype).get('idAtt'))
 
             if entId is None:
                 raise Exception("This entry should have an id! Something is seriously wrong.")
@@ -86,11 +131,11 @@ def buildIdNeighbourhoodDict(masterdict, schema):
     # will contain entries such as posts: {id: {neighbourid: 'post'|'user'|'comment'}}, 
     idNeighbourhoods = initEmptyTypesDict(schema)
 
-    # NOTE need to make sure the masterdict structure im using inside is consisten with the one I will be constructing
+    # NOTE need to make sure the masterdict structure im using inside is consistent with the one I will be constructing
     for nodetype in schema:
         for node in masterdict[nodetype]:
             neighbours = constructNeighbours(node, nodetype, schema)
-            nodeid = node.get('Id')
+            nodeid = node.get(schema.get(nodetype).get('idAtt'))
             idNeighbourhoods[nodetype][nodeid] = neighbours
 
     
@@ -119,21 +164,28 @@ def buildLikewiseRelationships(neighbourhoods):
     for nodetype in neighbourhoods:
         for nodeid in neighbourhoods[nodetype]:
             nodeneighbourhood = neighbourhoods[nodetype][nodeid]
-            for neighbourid in nodeneighbourhood:
-                neighbourtype = nodeneighbourhood[neighbourid]
-                neighbourhoods[neighbourtype][neighbourid][nodeid] = nodetype
+            for neighbourtype in nodeneighbourhood:
+                for neighbourid in nodeneighbourhood[neighbourtype]:
+                    neighbourhoods[neighbourtype][neighbourid][nodetype].append(nodeid)
+                
     
     return neighbourhoods
 
+
+# loops ovr all of the connections in the id graph and builds their equivalents from the entry indexes in the whole shuffled dataset
 def convertIdGraphToIndexGraph(idGraph, indexGuide):
     indexGraph = {}
+
     for nodetype in idGraph:
+
         for nodeid in idGraph[nodetype]:
+
             nodeneighbourhood = idGraph[nodetype][nodeid]
             neighbourlist = []
-            for neighbourid in nodeneighbourhood:
-                neighbourtype = nodeneighbourhood[neighbourid]
-                neighbourlist.append(indexGuide[neighbourtype][neighbourid])
+
+            for neighbourtype in nodeneighbourhood:
+                for neighbourid in nodeneighbourhood[neighbourtype]:
+                    neighbourlist.append(indexGuide[neighbourtype][neighbourid])
 
 
             nodeindex = indexGuide[nodetype][nodeid]
@@ -142,30 +194,11 @@ def convertIdGraphToIndexGraph(idGraph, indexGuide):
     return indexGraph
 
 """
-
-Functions for getting the neighbours of different types of nodes
-
-Neighbours of a POST:
-    If Post is a response:
-        ParentId
-    If Post is a parent:
-        ChildrenIds
-
-    - CommentIds for any comments
-    - OwnerUserId (If present, if not then user was deleted)
-    - (LastEditorUserId - not being used since we're not reaaally capturing edit history rn)
-    - Possibly any entries in PostLinks that links this either with another post or with a duplicate
-
-Neighbours of a USER:
-    - PostIds of any posts that link to this user
-    - CommentIds of any comments that link to this user
-    Nothing to construct from this end so far, but users are included in links from other types
-
-
-Neighbours of a COMMENT:
-    - PostId
-    - UserId (If present, if not then user was deleted) 
-
+Neighbourdict foramt:
+nodeneighbourhood = {
+    typeA: [id1,id2,id3,id4],
+    typeB: [id1,id2,id3,id4]
+}
 """
 
 
@@ -184,7 +217,16 @@ def constructNeighbours(node, nodetype, schema):
 
             neighbourid = node.get(att)
 
-            neighbours[neightype].append(neighbourid)
+            if isinstance(node.get(att),list):
+                neighbours[neightype].append(*neighbourid)
+
+            else:
+                neighbours[neightype].append(neighbourid)
+
+    return neighbours
+
+
+
 
 
 def constructPostNeighbours(post):
@@ -219,64 +261,8 @@ def constructCommentNeighbours(comment):
 
     return neighbours
 
-def main():
-    pass
+
 
 if __name__ == '__main__':
     main()
 
-"""
-
-
-Should I include PostLinks info in my data????
-    They encode info about which posts reference other posts, and which posts are duplicates (probably tbh)
-
-How will I build these:
-
-    Place all post, user and comment dicts in one list, then shuffle that list. I can then place their ids in the indexGuide
-
-    Then when constructing the neighbours of a post/user/comment, I just pass that individual one and the indexguide to build up the neighbours
-
-What I currently have: 
-    Separate lists of posts, users and comments. Each post has an associated id, BUT they're not indexed in order.
-    Ids also don't start from 0, which can be problematic. 
-
-
-Also needed:
-
-    I need to shuffle them all together, since I want it
-    to be easier to split into training/testing with roughly proportional amounts of nodes
-
-IDEA:
-    Can keep a dict with the following structure:
-    {
-        posts: {
-            id1:index1
-            id2:index2 
-        },
-        users: {
-            id: index
-        },
-        comments: {
-            like above
-        }
-
-    }
-
-What GCN utils expects:
-    Loads input data from gcn/data directory
-
-    ind.dataset_str.x => the feature vectors of the training instances as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.tx => the feature vectors of the test instances as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.allx => the feature vectors of both labeled and unlabeled training instances
-        (a superset of ind.dataset_str.x) as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.y => the one-hot labels of the labeled training instances as numpy.ndarray object;
-    ind.dataset_str.ty => the one-hot labels of the test instances as numpy.ndarray object;
-    ind.dataset_str.ally => the labels for instances in ind.dataset_str.allx as numpy.ndarray object;
-    ind.dataset_str.graph => a dict in the format {index: [index_of_neighbor_nodes]} as collections.defaultdict
-        object;
-    ind.dataset_str.test.index => the indices of test instances in graph, for the inductive setting as list object.
-
-    All objects above must be saved using python pickle module.
-
-"""

@@ -23,6 +23,24 @@ masterdict format: ( the whole point of this is to keep track of which items exi
     }
 
 }
+
+
+alternative format:
+{
+    typeA: [ (list of entries in that type)
+        {
+            identifier: its id
+            attname: value,
+            attname: value,
+            attname: value
+            
+        },
+        {
+            ....
+        }
+    ]
+    
+}
 """
 
 
