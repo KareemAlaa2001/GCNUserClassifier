@@ -2,6 +2,22 @@ from queue import Queue
 
 
 
+def buildMasterDict(data, schema, toptype):
+    verify_schema(schema)
+    # NOTE can use whether the passed in data is a dict or a list to determine whether 
+    # want to be able to handle data either in a form where it is a dict of lists, each list corresponding to the entries in each type ( this is simple )
+    # or to be in the more complex format of a dict tree, where atts point to either attributes of that type or child nodes
+    
+    # TODO need to decide on what kind of structures I will accept
+
+    # if thedata is in the former format
+    # pass ( for now)
+
+    # else:
+    # need to verify that toptype is not none
+    # then we open the item list and treat the entries in that list as entries of that type
+
+
 def verify_schema(schema):
     # things I need to verify in the schema: 
     # - neighbourtypes in the linkatt values actually exist up top
@@ -49,7 +65,7 @@ def verify_schema(schema):
 
     return schema
     
-    
+
 
 """
 DATA schema format:
