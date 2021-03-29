@@ -6,7 +6,50 @@ def verify_schema(schema):
     # things I need to verify in the schema: 
     # - neighbourtypes in the linkatt values actually exist up top
     # - TODO see if I am going to include a 'toptype' in the schema
-    pass
+
+    # building up the list of knowntypes and verifying the existences and data types sof assumed attributes
+    knowntypes = []
+    for nodetype in schema:
+        knowntypes.append(nodetype)
+
+        # checking that key attributes exist
+
+        if schema[nodetype].get('idAtt') is None:
+            estring = "This schema is missing an attribute named \'idAtt\' for the unique id for node type: " + str(nodetype)
+            raise Exception(estring)
+
+        if schema[nodetype].get('featureAtts') is None:
+            estring = "This schema is missing an attribute named \'featureAtts\' containing a list of attribute names associated with the features for node type: " + str(nodetype)
+            raise Exception(estring)
+
+        if schema[nodetype].get('linkAtts') is None:
+            estring = """This schema is missing an attribute named \'linkAtts\' containing a dict with (attributename: neighbourtype) entries, 
+            where attributename is the name of the attribute that has the id of the linked neighbour and neighbourtype is the respective type of that neighbour. This is missing for nodetype: """ + str(nodetype)
+            raise Exception(estring)
+
+        # checking that the value passed into the featureAtts attribute is a list
+        featureAtts = schema[nodetype].get('featureAtts')
+        if not isinstance(featureAtts, list):
+            estring = "The value associated with the \'featureAtts\' attribute is not a list for node type: " + str(nodetype) + " , it should have the list of the names of attributes associated with features. If none exist, pass an empty list."
+            raise Exception(estring)
+
+        # checking that the value passed into the linkAtts attribute is a dict
+        linkAttDict = schema[nodetype].get('linkAtts')
+        if not isinstance(linkAttDict, dict):
+            estring = "The value associated with the \'linkAtts\' attribute is not a dict for node type: " + str(nodetype) + """ . It should have (attributename: neighbourtype) entries, 
+            where attributename is the name of the attribute that has the id of the linked neighbour and neighbourtype is the respective type of that neighbour. If none exist, pass an empty dict."""
+            raise Exception(estring)
+
+    # verifying that the values in linkatts point to knowntypes
+    for nodetype in schema:
+        for linkAtt in schema[nodetype]['linkAtts']:
+            if schema[nodetype]['linkAtts'][linkAtt] not in knowntypes:
+                estring = "The passed in neighbour type in the link attribute " + str(linkAtt) + " for node type " + str(nodetype) + " does not match one of the node types outlined in the schema!"
+                raise Exception(estring)
+
+    return schema
+    
+    
 
 """
 DATA schema format:
