@@ -3,7 +3,7 @@ import random
 from genhelpers import initEmptyTypesDict
 # from fvBuilder import *
 # from extraction import recentComments, recentPosts, recentUsers
-from helpers import *
+# from helpers import *
 
 # def buildFeatureVectorList(data, client):
 #     pass
@@ -16,19 +16,34 @@ def main():
         'typeA': [
             {
                 'identifier': '1',
-                'daughter': ['69','420'],
-                'son':'25',
+                'daughter': '2',
+                'son':['25', '69'],
                 'feature2': 'Ya bish'
+            },
+            {
+                'identifier': '2',
+                'daughter': '1',
+                'featureA': 'lmaooo'
             }
+
         ], 'typeB': [
+            {
+                'identifierB': '25',
+                'daddy': ['1','2']
+
+            },
+            {
+                'identifierB': '69',
+                'mommy': '25'
+            }
 
         ]
     }
 
     # TODO build a nice fat verification function for any schemas passed in by library users
     schema = {
-        'toptype': 'typeA',
         'typeA': {
+            'toptype': True,
             'idAtt': 'identifier',
             'featureAtts': ['featureA', 'feature2','feature3'],
             'linkAtts': {
@@ -42,14 +57,13 @@ def main():
             'idAtt': 'identifierB',
             'featureAtts': ['featureA', 'feature2','feature3'],
             'linkAtts': {
-                'daughter': 'typeB',
-                'son': 'typeA',
-                'child':'typeB'
+                'mommy': 'typeB',
+                'daddy': 'typeA'
                 
             }
         },
     }
-    buildGCNGraph()
+    buildGCNGraph(masterdict, schema)
 
 # takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
 def buildGCNGraph(masterdict, schema):
@@ -58,6 +72,14 @@ def buildGCNGraph(masterdict, schema):
     indexGuide = buildShuffledIndexGuide(masterdict, schema)
     idGraph = buildIdNeighbourhoodDict(masterdict, schema)
     gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
+    print('Masterdict:')
+    print(masterdict)
+    print('Index guide:')
+    print(indexGuide)
+    print('Id Graph:')
+    print(idGraph)
+    print('Index Graph:')
+    print(gcngraph)
     
     return gcngraph # data # uncomment this once I figure out what Im doing with data
 
@@ -65,7 +87,7 @@ def buildGCNGraph(masterdict, schema):
 # Builds an indexGuide containing mappings of id:index for each type in the dataset
 def buildShuffledIndexGuide(masterdict, schema):
     # list of indexes of length - number of entries in the masterdict
-    indexes = [i for i in range(len(shuffleData(masterdict, schema)))]
+    indexes = [i for i in range(len(shuffleData(masterdict)))]
     random.shuffle(indexes)
 
     indexGuide = initEmptyTypesDict(schema)
@@ -73,8 +95,10 @@ def buildShuffledIndexGuide(masterdict, schema):
     i = 0
 
     for nodetype in masterdict:
+        # print(nodetype)
         # looping over the list of entries in the respective type in the masterdict
-        for entry in nodetype:
+        for entry in masterdict.get(nodetype):
+            # print(entry)
             entId = entry.get(schema.get(nodetype).get('idAtt'))
 
             if entId is None:
@@ -166,7 +190,9 @@ def buildLikewiseRelationships(neighbourhoods):
             nodeneighbourhood = neighbourhoods[nodetype][nodeid]
             for neighbourtype in nodeneighbourhood:
                 for neighbourid in nodeneighbourhood[neighbourtype]:
-                    neighbourhoods[neighbourtype][neighbourid][nodetype].append(nodeid)
+                    neighboursofneighbour = neighbourhoods[neighbourtype][neighbourid][nodetype]
+                    if nodeid not in neighboursofneighbour:
+                        neighboursofneighbour.append(nodeid)
                 
     
     return neighbourhoods
@@ -218,7 +244,8 @@ def constructNeighbours(node, nodetype, schema):
             neighbourid = node.get(att)
 
             if isinstance(node.get(att),list):
-                neighbours[neightype].append(*neighbourid)
+                for neighid in node.get(att):
+                    neighbours[neightype].append(neighid)
 
             else:
                 neighbours[neightype].append(neighbourid)
