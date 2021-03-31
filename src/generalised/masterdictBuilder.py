@@ -2,14 +2,62 @@ from queue import Queue
 
 
 
-def buildMasterDict(data, schema, toptype):
+def buildMasterDict(data, schema, toptype=None):
+    masterdict = {} 
+
     verify_schema(schema)
     # NOTE can use whether the passed in data is a dict or a list to determine whether 
     # want to be able to handle data either in a form where it is a dict of lists, each list corresponding to the entries in each type ( this is simple )
     # or to be in the more complex format of a dict tree, where atts point to either attributes of that type or child nodes
     
-    # TODO need to decide on what kind of structures I will accept
+    
+    # if we're using a toptype, first check it is a type in the schema
+    # then we want to parrse through. Want to check that entries satisfy that toptype
+    if toptype is not None:
+        if not verify_toptype(toptype, schema):
+            raise Exception("Toptype passed in is not in the list of types outlined in the schema!")
 
+        # if the data passed in is in a list form: could be a list of nodes of the same type or mixed types
+        if isinstance(data, list):
+
+            # since a toptype was set, then all entries in top list must be of that type
+            # make that check while building the queue of nodes to explore
+            toExplore = Queue()
+
+            for topentry in data:
+                if entrySatisfiesNodeType(topentry, schema[toptype]):
+                    toExplore.put(topentry)
+
+                else: 
+                    raise Exception("A toptype was passed in, but not all entries in the list satisfy that type!")
+
+            # now done with verification, time to actually build the masterdict!
+
+            # TODO implement this
+            while not toExplore.empty():
+                nextEntry = toExplore.get()
+                
+
+            
+
+
+
+            
+
+        
+    # TODO need to decide what to process if toptypes is None
+    # NOTE could accept the following:
+    #   list of nodes of mixed types
+    #   dict containing single node - SHOULD HAVE BEEN COVERED BY TOPTYPE
+    #   Any other formats will have custom attributes - must first figure out the stuff with fixed att names
+    #
+
+    if verify_masterdict(data, schema):
+        return data
+
+    # NOTE a possible solution is to accept a few different formats for the input data
+
+    pass
     # if thedata is in the former format
     # pass ( for now)
 
@@ -17,6 +65,60 @@ def buildMasterDict(data, schema, toptype):
     # need to verify that toptype is not none
     # then we open the item list and treat the entries in that list as entries of that type
 
+def entrySatisfiesNodeType(entry, ntype):
+    idAtt = ntype.get('idAtt')
+
+    if idAtt not in entry:
+        return False
+
+    featureAtts = ntype.get('featureAtts')
+    linkAtts = ntype.get('linkAtts')
+
+    for att in entry:
+        if att not in featureAtts and att not in linkAtts:
+            return False
+    
+    return True
+
+def verify_toptype(toptype, schema):
+    if toptype not in schema.keys():
+        return False
+    else:
+        return True
+
+def buildMasterDictFromSingleToptypeList(data, schema, toptype):
+    pass
+
+# Verifies the following:
+# passed in data has a dict type with the same children keys (nodetypes) as the schema
+# the values mapped by those keys are lists
+# Each entry in that list has the unique idAtt as named
+# If the idAtt is there, all entries in a certain nodetype have unique ids
+def verify_masterdict(inp, schema):
+    if isinstance(inp, dict) and inp.keys() == schema.keys():
+        
+        for ntype in inp:
+            encounteredids = {}
+            if isinstance(inp[ntype],list):
+                entries = inp[ntype]
+
+                for entry in entries:
+                    # making sure that each entry contains the id attribute
+                    if entry.get(schema.get(ntype).get('idAtt')) is not None:
+                        id = entry.get(schema.get(ntype).get('idAtt'))
+                        if encounteredids.get(id) is not None:
+                            estring = "Data contains duplicate ids for id " + str(id) + " in node type " + ntype + " !"
+                            raise Exception(estring)
+                        else:
+                            encounteredids[id] = 1
+                    else:
+                        return False
+            else:
+                return False
+
+        return True
+    else:
+        return False
 
 def verify_schema(schema):
     # things I need to verify in the schema: 
