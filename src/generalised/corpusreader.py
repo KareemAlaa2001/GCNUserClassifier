@@ -84,16 +84,19 @@ This would cover datasets like stackoverflow where the db column names are used 
 
 """
 LIB MODULES:
-"CorpusReader" -> Either Schema-based or based on subclass built
+"CorpusReader" -> Either Schema-based "CorpusReaderSchema" or based on subclass built
  - IDEA: INDEX NODES HERE RATHER THAN AT THE NEXT STAGE (FOR THE SCHEMA LIB), 
  CAN ALLOW FOR THE NEXT MODULE TO JUST DEAL WITH HOMOGENISED NODE IDS WITHOUT HAVING TO ACCOM FOR DIFFERENT 
 
 
 This produces 
 
+DATA FORMAT: {node_id: [neighbourid]}
    
 [DATA FORMAT] - - should allow for EITHER multiple separated node types OR just a massive list of nodes directly indexed.
                 - this should be a format capable of dealing with both ways the previous module was used
+
+So we got 2 things - we can edit the masterdict to just use normal node ids. If that's the case though, then the data I want from the 
 
 Passed into
 
@@ -109,5 +112,16 @@ node type index = { node_id : node_type }
 node spec index = { node_id : <node spec> }
 <node spec> = { feature_attribute : value, ... }
 
+EL MOHEM --- EL PYTHON DICT elly fiha each node id and neighbourid lists
+
+I can then have ANOTHER module, (smallboi) to convert to the exact types 
+    - could take in featurevectors and convert them to a csr_matrix object - could build the listoflists by taking in {node_id: fv} OR just the list of lists to prod mat
+
+Need to also be able to handle gold truth dataaaaaaaaaaa
+
+CAN SPIT OUT THE DATA ITSELF FOR CUSTOM GCN IMPLEMENTATIONS
+CAN HAVE ANOTHER MODULE AS A WRAPPER TO RUN THIS DATA WITH VANILLA GCN 
+
+I NEED TO GET ALL THIS SHIT DONE IN A COUPLE OF DAYS BOIIIIIIII - necessary to allow for enough time to test out with GCN
 
 """

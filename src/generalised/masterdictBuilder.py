@@ -1,16 +1,16 @@
 from queue import Queue
 
-# NOTE - changing masterdict to include an extra "internal-misc" type for any dict entries that are not going to be nodes in the graph
+# NOTE - changing masterdict to include an extra "internal-misc" type for any dict entries that are not going to be nodes in the graph - leh, manyaka heya?
     
 
-def buildMasterDict(data, schema, toptype=None):
+def buildMasterDict(data, schema, toptype=None, topTypeList=None):
     masterdict = {} 
 
     verify_schema(schema)
     # NOTE can use whether the passed in data is a dict or a list to determine whether 
     # want to be able to handle data either in a form where it is a dict of lists, each list corresponding to the entries in each type ( this is simple )
     # or to be in the more complex format of a dict tree, where atts point to either attributes of that type or child nodes
-    
+    toExplore = Queue()
     
     # if we're using a toptype, first check it is a type in the schema
     # then we want to parrse through. Want to check that entries satisfy that toptype
@@ -23,8 +23,7 @@ def buildMasterDict(data, schema, toptype=None):
 
             # since a toptype was set, then all entries in top list must be of that type
             # make that check while building the queue of nodes to explore
-            toExplore = Queue()
-
+            
             for topentry in data:
                 if entrySatisfiesNodeType(topentry, schema[toptype]):
                     toExplore.put((topentry,toptype))
@@ -34,56 +33,63 @@ def buildMasterDict(data, schema, toptype=None):
 
             # now done with verification, time to actually build the masterdict!
 
-            # TODO implement this
-            while not toExplore.empty():
-                entry, entrytype = toExplore.get()
+            masterdict = buildMasterDictWithKnownToExploreQueue(toExplore, schema)
 
-                entryDict = {}
-                entrySchema = schema.get(entrytype)
-                if entrySchema is None:
-                    raise Exception("Passed in entry type does not exist in the schema!")
-                # looping over all the attributes in the entry. Either this att links to an individual value, a list or a dict
-                # The list could either be a list of values or list of dicts
-                for att in entry:
-                    value = entry.get(att)
+        elif isinstance(data, dict):
+            if entrySatisfiesNodeType(data, schema[toptype]):
+                toExplore.put((data,toptype))
+            
+            else: 
+                raise Exception("A toptype was passed in, but the data dict top entry does not satisfy that type!")
 
-                    if att in entrySchema.get('linkAtts'):
-                        if isinstance(value, dict):
-                            neighbourtype = entrySchema.get('linkAtts').get(att)
-                            toExplore.put((value,entrySchema.get('linkAtts').get(att)))
+            masterdict = buildMasterDictWithKnownToExploreQueue(toExplore, schema)
 
-                            neighbouridatt = schema.get(neighbourtype).get('idAtt')
-                            entryDict[att] = value.get(neighbouridatt)
-                        elif isinstance(value, list):
-                            neighbourids = []
-                            for elem in value:
-                                
-                                if isinstance(elem, dict):
-                                    neighbourtype = entrySchema.get('linkAtts').get(att)
-                                    toExplore.put((elem,neighbourtype))
+        else:
+            raise Exception("Invalid value detected!")
 
-                                    neighbouridatt = schema.get(neighbourtype).get('idAtt')
-                                    neighbourids.append(elem.get(neighbouridatt))
-                                else: 
-                                    neighbourids.append(elem)
+    
+    else: # if toptype is none! in this case we want to take in a list of mixed types - could accept an extra arg with the indexed nodetypes
+        if isinstance(data, list):
+            if topTypeList is None:
+                raise Exception("No toptype list was passed in showing the toptypes of all the nodes in the highest level list!")
 
-                            entryDict[att] = neighbourids
-                        else:
-                            # normal att for link - use as id of linked node
-                            entryDict[att] = value
+            elif len(topTypeList) != len(data):
+                raise Exception("Toptype list passed in has a lengh != to the length of the data list!")
 
-                    elif att in entrySchema.get('featureAtts'):
-                        if isinstance:
-                            pass
-                          # todo - figure out this scenario where a feature points to a dict
-                    else:
-                        pass # can allow for custom attributes here 
+            for t in topTypeList:
+                if t not in schema:
+                    estr = "Type " + t + " in the toptypelist passed in does not exist in the schema!"
+                    raise Exception(estr)
+
+            # now that things are verified, can now build the masterdict using the toptypes
+            # can essentially do that by appending masterdicts built from each
+
+            for i in range(len(data)):
+                toExplore = Queue()
+
+                topEntry = data[i]
+                toptype = topTypeList[i]
+
+                if entrySatisfiesNodeType(topEntry, schema[toptype]):
+                    toExplore.put((data,toptype))
+                
+                else: 
+                    raise Exception("A toptype was passed in, but the data dict top entry does not satisfy that type!")
+
+                entryMasterDict = buildMasterDictWithKnownToExploreQueue(toExplore, schema)
+
+                masterdict.update(entryMasterDict)
+
+        else:
+            raise Exception("No support for mixed type non-list structures at the top level of the passed in data")
+
+    return masterdict
+
+
 
                 
 
-            
-
-
+        
 
             
 
@@ -99,14 +105,78 @@ def buildMasterDict(data, schema, toptype=None):
         return data
 
     # NOTE a possible solution is to accept a few different formats for the input data
-
-    pass
     # if thedata is in the former format
     # pass ( for now)
 
     # else:
     # need to verify that toptype is not none
     # then we open the item list and treat the entries in that list as entries of that type
+
+def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
+
+    masterDict = {}
+
+    while not toExplore.empty():
+        entry, entrytype = toExplore.get()
+
+        entryId = None
+
+        entryDict = {}
+        entrySchema = schema.get(entrytype)
+        if entrySchema is None:
+            raise Exception("Passed in entry type does not exist in the schema!")
+        # looping over all the attributes in the entry. Either this att links to an individual value, a list or a dict
+        # The list could either be a list of values or list of dicts
+        for att in entry:
+            value = entry.get(att)
+
+            if att in entrySchema.get('linkAtts'):
+                if isinstance(value, dict):
+                    neighbourtype = entrySchema.get('linkAtts').get(att)
+                    toExplore.put((value,entrySchema.get('linkAtts').get(att)))
+
+                    neighbouridatt = schema.get(neighbourtype).get('idAtt')
+                    entryDict[att] = value.get(neighbouridatt)
+                elif isinstance(value, list):
+                    neighbourids = []
+                    for elem in value:
+                        
+                        if isinstance(elem, dict):
+                            neighbourtype = entrySchema.get('linkAtts').get(att)
+                            toExplore.put((elem,neighbourtype))
+
+                            neighbouridatt = schema.get(neighbourtype).get('idAtt')
+                            neighbourids.append(elem.get(neighbouridatt))
+                        else: 
+                            neighbourids.append(elem)
+
+                    entryDict[att] = neighbourids
+                else:
+                    # normal att for link - use as id of linked node
+                    entryDict[att] = value
+
+            elif att in entrySchema.get('featureAtts'):
+                if isinstance:
+                    pass
+                    # todo - figure out this scenario where a feature points to a dict
+
+            elif att == entrySchema.get('idAtt'):
+                entryId = entry.get(att)
+
+            else:
+                pass # can allow for custom attributes here - NAH we doing custom atts using the CorpusReader abstract class
+
+        if entryId is None:
+            raise Exception("there was no id attribute encountered in this entry that matched the id property in the ")
+
+        masterDict[entrytype][entryId] =  entryDict
+
+    return masterDict
+
+
+
+
+
 
 def entrySatisfiesNodeType(entry, ntype):
     idAtt = ntype.get('idAtt')
