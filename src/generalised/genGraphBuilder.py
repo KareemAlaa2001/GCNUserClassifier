@@ -18,7 +18,7 @@ def main():
                 'identifier': '1',
                 'daughter': '2',
                 'son':['25', '69'],
-                'feature2': 'Ya bish'
+                'feature2': 'Ya boi'
             },
             {
                 'identifier': '2',

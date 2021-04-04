@@ -1,0 +1,113 @@
+from abc import ABC, abstractmethod
+
+
+class AbstractCorpusReader(ABC):
+
+    @abstractmethod
+    def readCorpus(self):
+        pass
+
+"""
+STUART'S EMAIL:
+
+As discussed you need to think about the following for your software (to make it re-usable across two domains).
+ 
+Below is what I was thinking listening to your description, simplified so its clean to my eyes. You need to think about it in the context of the work you have already done on schema, so you get the best value from the work you have done so far.
+ 
+(a) corpus reader class (to load a corpus and create a graph ready for processing)
+ 
+CorpusReaderStackOverflow.init( filename, stackflow_schema )
+CorpusReaderIntelViz.init( filename )
+ 
+CorpusReaderAbstract() {
+  def init()
+  def read_corpus() -> GCN input structures
+ 
+(b) GCN input structures (which your code will use to run GCN)
+ 
+graph = { node_id : [ node_id, node_id, ... ] }
+node type index = { node_id : node_type }
+node spec index = { node_id : <node spec> }
+<node spec> = { feature_attribute : value, ... }
+ 
+(c) GCN output structures (which your code will return after GCN has run)
+ 
+connection matrix = { node_id : [ node_id, node_id ... ] }
+ 
+the user will have the (b) structures already, so can simply lookup what each node_id means as they use the GCN connection data.
+ 
+Best wishes,
+Stuart
+"""
+
+
+
+
+
+"""
+MY THOUGHTS:
+
+If I reduce the library to the format that stuart is suggesting, then I'm not actually doing that much pre-processing,
+and it would need my library to do more in terms of running GCN. I can't actually hand-craft the featurevectors myself though,
+so that would need them to pass in the FVs as well. But then what am I doing? Am I just setting up a framework within which they can work? 
+What am I actually simplifying? 
+
+
+"""
+
+"""
+Thinking up a full use case scenario for my library. Ideally, it takes in the data in the original files and 
+either uses the corpusreader input function of their own with the full variability to produce SOMETHING, that I can then use to elaborate
+
+I think the whole point of my library is to prep data for GCN use, either with both FVs AND Adj or just Adj
+"""
+
+
+
+"""
+Based on this, I should integrate the CorpusReader into my library to allow for full cusomtisability by the library user.
+
+I think I should keep the schema though, since a lot of work has already gone into it.
+
+How would I do this then? I could make my API have 2 classes: SchemaReader and AbstractCorpusReader
+
+both do the same thing, both reading the dataset passed in (in file form) and outputting the relevant dicts with the information needed
+to run GCN and for the libraey usser to interpret what's actually been produced
+"""
+
+"""
+Perhaps SchemaReader can maintain the role of automatically dealing with any dataset that has fixed attribute names for nodes. 
+This would cover datasets like stackoverflow where the db column names are used as the 
+"""
+
+
+
+"""
+LIB MODULES:
+"CorpusReader" -> Either Schema-based or based on subclass built
+ - IDEA: INDEX NODES HERE RATHER THAN AT THE NEXT STAGE (FOR THE SCHEMA LIB), 
+ CAN ALLOW FOR THE NEXT MODULE TO JUST DEAL WITH HOMOGENISED NODE IDS WITHOUT HAVING TO ACCOM FOR DIFFERENT 
+
+
+This produces 
+
+   
+[DATA FORMAT] - - should allow for EITHER multiple separated node types OR just a massive list of nodes directly indexed.
+                - this should be a format capable of dealing with both ways the previous module was used
+
+Passed into
+
+"GraphBuilder" -> takes in that data format to build the completed adj matrix (since many links might be incomplete 
+like those going both ways ), 
+
+
+outputting the data formats as discussed with Stuart: 
+
+
+graph = { node_id : [ node_id, node_id, ... ] }
+node type index = { node_id : node_type }
+node spec index = { node_id : <node spec> }
+<node spec> = { feature_attribute : value, ... }
+
+
+"""

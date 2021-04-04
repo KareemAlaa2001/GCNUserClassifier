@@ -1,6 +1,7 @@
 from queue import Queue
 
 # NOTE - changing masterdict to include an extra "internal-misc" type for any dict entries that are not going to be nodes in the graph
+    
 
 def buildMasterDict(data, schema, toptype=None):
     masterdict = {} 
@@ -72,8 +73,9 @@ def buildMasterDict(data, schema, toptype=None):
                             entryDict[att] = value
 
                     elif att in entrySchema.get('featureAtts'):
-                        if isinstance
-                        pass  # todo - figure out this scenario where a feature points to a dict
+                        if isinstance:
+                            pass
+                          # todo - figure out this scenario where a feature points to a dict
                     else:
                         pass # can allow for custom attributes here 
 
