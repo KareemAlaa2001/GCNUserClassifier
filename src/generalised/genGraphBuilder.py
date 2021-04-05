@@ -122,32 +122,6 @@ def shuffleData(masterdict):
 
     return masterlist
 
-# def buildIndexGuide(data, schema):
-#     indexGuide = {}
-
-#     for nodetype in schema:
-#         indexGuide[nodetype] = {}
-    
-#     for i in range(len(data)):
-#         entry = data[i]
-#         entId = entry.get('Id')
-
-#         if entId is None:
-#             raise Exception("This entry should have an id! Something is seriously wrong.")
-        
-#         # probably could replace this with a cleaner implementation that has the "type" returned from the helper func
-#         if isPost(entry):
-#             indexGuide['post'][entId] = i
-#         elif isUser(entry):
-#             indexGuide['user'][entId] = i
-#         elif isComment(entry):
-#             indexGuide['comment'][entId] = i
-#         else:
-#             raise Exception("Should either be a post, user or comment!")
-
-#     return indexGuide
-
-
 # Should probably build the interaction graph using just the ids, then using the indexguide to convert ids to indexes
 # Can do this by looping over all posts, users and comments and building one sided interaction graphs, 
 # then looping over that graph to put the corresponding second sides to complete the graph
@@ -161,22 +135,6 @@ def buildIdNeighbourhoodDict(masterdict, schema):
             neighbours = constructNeighbours(node, nodetype, schema)
             nodeid = node.get(schema.get(nodetype).get('idAtt'))
             idNeighbourhoods[nodetype][nodeid] = neighbours
-
-    
-    # for post in posts:
-    #     neighbours = constructPostNeighbours(post)
-    #     postid = post.get('Id')
-    #     idNeighbourhoods['post'][postid] = neighbours
-
-    # for comment in comments:
-    #     neighbours = constructCommentNeighbours(comment)
-    #     commentid = comment.get('Id')
-    #     idNeighbourhoods['comment'][commentid] = neighbours
-
-    # for user in users:
-    #     neighbours = constructUserNeighbours(user)
-    #     userid = post.get('Id')
-    #     idNeighbourhoods['user'][userid] = neighbours
     
     idNeighbourhoods = buildLikewiseRelationships(idNeighbourhoods)
 

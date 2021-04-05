@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from fileExtraction import *
+from masterdictBuilder import buildMasterDict
 
-
-class AbstractCorpusReader(ABC):
+class AbstractCorpusProcessor(ABC):
 
     def init(self, filename, schema=None):
         if schema is not None:
@@ -18,7 +19,51 @@ class AbstractCorpusReader(ABC):
     def readCorpus(self):
         pass
 
-# 5aly el habd for bokra
+class CorpusReader:
+
+    def readCorpus(self, filename, schema=None):
+        pass
+
+    
+
+class SchemaBasedCorpusReader:
+    def __init__(self, data, toptypes, schema):
+        self.schema = schema
+        self.data = data
+        self.toptypes = toptypes
+
+    # TODO implement new agreed format
+    def readCorpus(self):
+        return buildMasterDict(self.data, self.schema, self.toptypes)
+
+
+# TODO if time exists (prob not), can make this more sophisticated
+# TODO can flesh out XML extraction OR can figure out a way to extend to support mult files
+class FileExtractor:
+    def __init__(self, fileformat):
+
+        if fileformat != "XML" and fileformat != "JSON":
+            estr = "Filetype " + self.fileformat + " not supported, this module only supports \"XML\" and \"JSON\" formats"
+            raise Exception(estr)
+
+        self.fileformat = fileformat
+
+    def extractData(self, filename):
+        
+        if self.fileformat == "XML":
+            fileData = extractXMLFileToDict(filename)
+        elif self.fileformat == "JSON":
+            fileData = extractJSONFileToDict(filename)
+        else:
+            estr = "Filetype " + self.fileformat + " not supported, this module only supports \"XML\" and \"JSON\" formats"
+            raise Exception(estr)
+
+        return fileData
+
+        
+
+
+
 
 # want to be able to accommodate multiple node types
 def verifyReadCorpusResultFormat(data):

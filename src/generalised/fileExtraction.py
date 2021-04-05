@@ -29,6 +29,8 @@ def extractXMLFileToDict(filename):
 def listChildrenAttrib(node):
     childAttrib = []
     for child in node:
+        if len(list(child)) != 0:
+            raise Exception("This XML parsing module doesn't support complex node trees, just a simple list of children. Build your own XML parser")
         childAttrib.append(child.attrib)
 
     return childAttrib

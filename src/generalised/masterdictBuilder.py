@@ -3,18 +3,25 @@ from queue import Queue
 # NOTE - changing masterdict to include an extra "internal-misc" type for any dict entries that are not going to be nodes in the graph - leh, manyaka heya?
     
 
-def buildMasterDict(data, schema, toptype=None, topTypeList=None):
+def buildMasterDict(data, schema, toptypes):
     masterdict = {} 
 
     verify_schema(schema)
+
+    if verify_masterdict(data, schema):
+        return data
+
     # NOTE can use whether the passed in data is a dict or a list to determine whether 
     # want to be able to handle data either in a form where it is a dict of lists, each list corresponding to the entries in each type ( this is simple )
     # or to be in the more complex format of a dict tree, where atts point to either attributes of that type or child nodes
     toExplore = Queue()
     
-    # if we're using a toptype, first check it is a type in the schema
+    # if we're using a single toptype, first check it is a type in the schema
     # then we want to parrse through. Want to check that entries satisfy that toptype
-    if toptype is not None:
+    if not isinstance(toptypes, list):
+        
+        toptype = toptypes
+
         if not verify_toptype(toptype, schema):
             raise Exception("Toptype passed in is not in the list of types outlined in the schema!")
 
@@ -48,15 +55,15 @@ def buildMasterDict(data, schema, toptype=None, topTypeList=None):
             raise Exception("Invalid value detected!")
 
     
-    else: # if toptype is none! in this case we want to take in a list of mixed types - could accept an extra arg with the indexed nodetypes
+    else: # if toptypes is a list! in this case we want to take in a list of mixed types - could accept an extra arg with the indexed nodetypes
         if isinstance(data, list):
-            if topTypeList is None:
+            if toptypes is None:
                 raise Exception("No toptype list was passed in showing the toptypes of all the nodes in the highest level list!")
 
-            elif len(topTypeList) != len(data):
+            elif len(toptypes) != len(data):
                 raise Exception("Toptype list passed in has a lengh != to the length of the data list!")
 
-            for t in topTypeList:
+            for t in toptypes:
                 if t not in schema:
                     estr = "Type " + t + " in the toptypelist passed in does not exist in the schema!"
                     raise Exception(estr)
@@ -68,10 +75,10 @@ def buildMasterDict(data, schema, toptype=None, topTypeList=None):
                 toExplore = Queue()
 
                 topEntry = data[i]
-                toptype = topTypeList[i]
+                toptypes = toptypes[i]
 
-                if entrySatisfiesNodeType(topEntry, schema[toptype]):
-                    toExplore.put((data,toptype))
+                if entrySatisfiesNodeType(topEntry, schema[toptypes]):
+                    toExplore.put((data,toptypes))
                 
                 else: 
                     raise Exception("A toptype was passed in, but the data dict top entry does not satisfy that type!")
@@ -85,32 +92,6 @@ def buildMasterDict(data, schema, toptype=None, topTypeList=None):
 
     return masterdict
 
-
-
-                
-
-        
-
-            
-
-        
-    # TODO need to decide what to process if toptypes is None
-    # NOTE could accept the following:
-    #   list of nodes of mixed types
-    #   dict containing single node - SHOULD HAVE BEEN COVERED BY TOPTYPE
-    #   Any other formats will have custom attributes - must first figure out the stuff with fixed att names
-    #
-
-    if verify_masterdict(data, schema):
-        return data
-
-    # NOTE a possible solution is to accept a few different formats for the input data
-    # if thedata is in the former format
-    # pass ( for now)
-
-    # else:
-    # need to verify that toptype is not none
-    # then we open the item list and treat the entries in that list as entries of that type
 
 def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
 
@@ -234,7 +215,6 @@ def verify_masterdict(inp, schema):
 def verify_schema(schema):
     # things I need to verify in the schema: 
     # - neighbourtypes in the linkatt values actually exist up top
-    # - TODO see if I am going to include a 'toptype' in the schema
 
     # building up the list of knowntypes and verifying the existences and data types sof assumed attributes
     knowntypes = []
