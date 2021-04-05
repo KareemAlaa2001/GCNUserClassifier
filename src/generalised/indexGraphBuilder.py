@@ -7,10 +7,10 @@ class GraphProcessor:
         self.transitive = build_transitive
 
     def processMultiTypeGraph(self, graph):
-        processAdjacenciesMultipleTypes(graph, self.transitive)
+        return processAdjacenciesMultipleTypes(graph, self.transitive) # returns indexGCNGraph, idGraph, indexGuide
 
     def processIndexedGraph(self, graph):
-        processAdjacenciesIndexed(graph, self.transitive)
+        return processAdjacenciesIndexed(graph, self.transitive)
 
 
 # takes in a graph in the format {type:{nodeid: {neighbourtype: [neighbourids]}}}
@@ -21,12 +21,15 @@ def processAdjacenciesMultipleTypes(graph, transitive=False, shuffle=False):
     missingsfilled = masterdictGraphBuilder.buildLikewiseRelationships(graph)
 
     if transitive:
-        pass # TODO - deal with transitive relationships
+        missingsfilled = buildTransitivesMultipleTypedGraph(missingsfilled) # TODO - deal with transitive relationships
 
-    # gcngraph = masterdictGraphBuilder.
-    pass 
+    gcngraph = masterdictGraphBuilder.convertIdGraphToIndexGraph(missingsfilled)
+
+    return gcngraph, missingsfilled, indexGuide
 
 
+
+# NOTE O(N^2) runtime, could optimise later/ leave as an optional addition - AVOID unless necessary
 def buildTransitivesMultipleTypedGraph(graph):
     for nodetype in graph:
         for nodeid in graph[nodetype]:
@@ -34,11 +37,37 @@ def buildTransitivesMultipleTypedGraph(graph):
 
             for neighbourtype in graph[nodetype][nodeid]:
                 for neighbourid in graph[nodetype][nodeid][neighbourtype]:
-                    links = buildLinksToAdd(graph,nodeid, nodetype, neighbourid, neighbourtype)
+                    linkstoAdd = buildLinksToAdd(graph,nodeid, nodetype, neighbourid, neighbourtype)
+
+                    for linktype in linkstoAdd:
+                        for link in linktype:
+                            if link not in neighbourstoadd[linktype]:
+                                neighbourstoadd[linktype].append(link)
+
+            for ntype in neighbourstoadd:
+                for nid in neighbourstoadd[ntype]:
+                    graph[nodetype][nodeid][ntype].append(nid)
+                            
+    return masterdictGraphBuilder.buildLikewiseRelationships(graph)       
+
+
+                    
 
 
 def buildLinksToAdd(graph, nodeid, nodetype,  neighbourid, neighbourtype):
-    pass
+
+    neighbourlinks = graph[neighbourtype][neighbourid]
+
+    linkstoAdd = genhelpers.initEmptyTypesDict
+
+    existingneighbours = graph[nodetype][nodeid]
+
+    for linktype in neighbourlinks:
+        for link in neighbourlinks[linktype]:
+            if link not in existingneighbours[linktype]:
+                linkstoAdd[linktype].append(link)
+
+    return linkstoAdd
 
 
 def buildIndexGuide(graph, shuffle=False):
