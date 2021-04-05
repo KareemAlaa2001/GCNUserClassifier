@@ -1,23 +1,8 @@
 from abc import ABC, abstractmethod
 from fileExtraction import *
 from masterdictBuilder import buildMasterDict
-
-class AbstractCorpusProcessor(ABC):
-
-    def init(self, filename, schema=None):
-        if schema is not None:
-            pass # call modules to use schema-based approaches here
-        else:
-            # calls the readCorpus method implemented in the subclass. 
-            # This will return an object representing the whole corpus that I TODO need to decide on its look
-            result = self.readCorpus(filename)
-            verifyReadCorpusResultFormat(result)
-            pass # here is where I should be putting the factory design pattern to use I guess? 
-                # - not even, can just call self.readCorpus - need to test if this actually works though
-
-    @abstractmethod
-    def readCorpus(self):
-        pass
+from masterdictGraphBuilder import MasterdictGraphProcessor
+from genhelpers import *
 
 class CorpusReader:
 
@@ -28,27 +13,47 @@ class CorpusReader:
 
         self.schema_based = schema_based
 
-    def readCorpus(self, data, schema=None, toptypes=None):
+    def readCorpus(self, data, schema=None, toptypes=None, proc=None):
         if self.schema_based:
             if schema is None:
                 raise Exception("This CorpusReader object was set to be schema based, but no schema was passed in!")
             
+            proc = SchemaBasedCorpusProcessor(data, toptypes, schema)
+
+            masterdict = proc.readCorpus()
+
+            return masterdict
+        
+        else:
+            if proc is None:
+                raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but none was passed in!")
+            
+            if not isinstance(proc, AbstractCorpusProcessor):
+                raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but the one passed in was not an AbstractCorpusProcessor subclass!")
+
+            result = proc.readCorpus()
+
+            if verifyReadCorpusResultFormat(result):
+                return result
+            else:
+                raise Exception("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
 
 
-    
+class AbstractCorpusProcessor(ABC):
 
-class SchemaBasedCorpusProcessor:
+    @abstractmethod
+    def readCorpus(self):
+        pass
+
+class SchemaBasedCorpusProcessor(AbstractCorpusProcessor):
     def __init__(self, data, toptypes, schema):
         self.schema = schema
         self.data = data
         self.toptypes = toptypes
 
-    # TODO implement new agreed format
+
     def readCorpus(self):
         return buildMasterDict(self.data, self.schema, self.toptypes)
-
-
-# TODO sort out verification on what comes out of the non-schema based stuff so i can use it in the next phase
 
 
 # TODO if time exists (prob not), can make this more sophisticated
@@ -80,11 +85,85 @@ class FileExtractor:
 
 
 # want to be able to accommodate multiple node types
+# Accepted formats: {nodeid: [neighbourids]} - no types
+# typed - {nodetype: {nodeid: {neighbourtype: [neighbourids]}}}
 def verifyReadCorpusResultFormat(data):
-    pass
+    if isinstance(data, dict):
+        isAllLists = alldictvaluesatisfytype(data,list)
+
+        if isAllLists:
+            if alldictkeysarepositiveints(data):
+                for nodeid in data:
+                    neighlist = data[nodeid]
+                    if alllistmembersarepositiveints(neighlist):
+                        return True
+                    else:
+                        estr = "Values mapped to node ids were not all positive integers, so werent all neighbour indexes"
+                        raise Exception(estr)
+            else:
+                raise Exception("Not all node keys are positive integers! They are supposed to represent node indexes")
+
+        else:
+            if verifyMultipeTypeGraph(data):
+                return True
+            else:
+                raise Exception("There was a problem with the format that you entered!")
+    else:
+        estr = "Data is not in a dictionary format!"
+        raise Exception(estr)
+
+
+
+# verifies format {nodetype: {nodeid: {neighbourtype: [neighbourids]}}}
+def verifyMultipeTypeGraph(graph):
     
 
+    if isinstance(graph, dict):
+        if allkeyssatisfytype(graph, str):
+            nodetypes = []
 
+            for nodetype in graph:
+                nodetypes.append(nodetype)
+
+
+            for nodetype in graph:
+                if isinstance(graph[nodetype], dict):
+                    nodetypenodes = graph[nodetype]
+                    if alldictkeysarepositiveints(nodetypenodes):
+                        if alldictvaluesatisfytype(nodetypenodes,dict):
+                            for nodeid in nodetypenodes:
+                                neighbourhood = nodetypenodes[nodeid]
+
+                                if allkeyssatisfytype(neighbourhood, str):
+                                    for ntype in neighbourhood:
+                                        if ntype not in nodetypes:
+                                            estr = "Node type " + ntype + " passed into neighbours of node " + nodeid + " is not one of the recognised types!"
+                                            raise Exception(estr)
+
+                                    if alldictvaluesatisfytype(neighbourhood, list):
+                                        for ntype in neighbourhood:
+                                            if alllistmembersarepositiveints(neighbourhood[ntype]):
+                                                return True
+
+                                            else:
+                                                raise Exception("Non-int index neighbours entered")
+
+                                else:
+                                    estr = "Node types passed in for nodeid " + nodeid + " were not all strings, invalid format"
+                                    raise Exception(estr)
+                        else:
+                            estr = "Nodetype " + nodetype + " mapping for some of its children was not a dict"
+                            raise Exception(estr)
+                    else:
+                        estr = "Nodetype " + nodetype + " had a key which was not a node id! Was not a positive integer"
+                        raise Exception(estr)
+                else:
+                    estr = "Nodetype " + nodetype + " mapping was not a dict"
+                    raise Exception(estr)
+        else:
+            raise Exception("Suppsoed to have string nodetypes passed in at the top")
+    else:
+        raise Exception("Data is not in a dictionary format!")
 
 
 

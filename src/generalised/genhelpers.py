@@ -23,3 +23,15 @@ def initEmptyTypesDict(schema):
         typesdict[nodetype] = {}
 
     return typesdict
+
+def alldictkeysarepositiveints(data):
+    return all(list(map(lambda att: isinstance(att, int) and att >= 0,data)))
+
+def alllistmembersarepositiveints(data):
+    return all(list(map(lambda att: isinstance(att, int) and att >= 0,data)))
+
+def alldictvaluesatisfytype(data,type):
+    return all(list(map(lambda att: isinstance(data[att],type) , data)))
+
+def allkeyssatisfytype(data, type):
+    return all(list(map(lambda att: isinstance(att, type),data)))

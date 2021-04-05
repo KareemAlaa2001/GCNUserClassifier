@@ -156,11 +156,3 @@ def buildLikewiseRelationships(neighbourhoods):
     
     return neighbourhoods
 """
-
-
-
-def indexMultipleTypedGraph(graph):
-    pass
-
-
-
