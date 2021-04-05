@@ -62,7 +62,7 @@ class FileExtractor:
 
         
 
-
+# TODO deal with the FVs and wrap stuff like graph building and all that
 
 
 # want to be able to accommodate multiple node types

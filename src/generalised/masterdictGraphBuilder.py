@@ -10,8 +10,6 @@ from genhelpers import initEmptyTypesDict
 
 
 def main():
-    # TODO test the buildGCNGraph Function with a tricky masterdict & accompanying schema
-    # TODO verificationnnnnnnnn
     masterdict = {
         'typeA': [
             {
@@ -40,7 +38,6 @@ def main():
         ]
     }
 
-    # TODO build a nice fat verification function for any schemas passed in by library users
     schema = {
         'typeA': {
             'toptype': True, # I might leave the toptype out of the schema, depending on how I format the masterdict builder 
@@ -63,23 +60,15 @@ def main():
             }
         },
     }
-    buildGCNGraph(masterdict, schema)
+    buildGCNGraphFromMasterdict(masterdict, schema)
 
 # takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
-def buildGCNGraph(masterdict, schema):
+def buildGCNGraphFromMasterdict(masterdict, schema):
     # data = shuffleData(masterdict)
     # indexGuide = buildIndexGuide(data)
     indexGuide = buildShuffledIndexGuide(masterdict, schema)
     idGraph = buildIdNeighbourhoodDict(masterdict, schema)
     gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
-    print('Masterdict:')
-    print(masterdict)
-    print('Index guide:')
-    print(indexGuide)
-    print('Id Graph:')
-    print(idGraph)
-    print('Index Graph:')
-    print(gcngraph)
     
     return gcngraph # data # uncomment this once I figure out what Im doing with data
 
@@ -150,11 +139,9 @@ def buildLikewiseRelationships(neighbourhoods):
                 for neighbourid in nodeneighbourhood[neighbourtype]:
                     neighboursofneighbour = neighbourhoods[neighbourtype][neighbourid][nodetype]
                     if nodeid not in neighboursofneighbour:
-                        neighboursofneighbour.append(nodeid)
-                
+                        neighboursofneighbour.append(nodeid)        
     
     return neighbourhoods
-
 
 # loops ovr all of the connections in the id graph and builds their equivalents from the entry indexes in the whole shuffled dataset
 def convertIdGraphToIndexGraph(idGraph, indexGuide):
@@ -209,44 +196,6 @@ def constructNeighbours(node, nodetype, schema):
                 neighbours[neightype].append(neighbourid)
 
     return neighbours
-
-
-
-
-
-def constructPostNeighbours(post):
-    neighbours = {}
-
-    if post.get('PostTypeId') == '2':
-        # TODO change this to nrighbours['post'] = comment.get('ParentId') OR 'ParentId' = comment.get('ParentId') to avoid overwrites from the same id in diff types
-        neighbours[post.get('ParentId')] = 'post'
-
-    # TODO same as above
-    if post.get('OwnerUserId') is not None:
-        neighbours[post.get('OwnerUserId')] = 'user'
-
-    # TODO implement postlinks here
-
-    return neighbours
-
-def constructUserNeighbours(user):
-    return {}
-
-def constructCommentNeighbours(comment):
-    neighbours = {}
-
-    if comment.get('UserId') is not None:
-        # TODO change this to nrighbours['user'] = comment.get('UserId') to avoid overwrites from the same id in diff types
-        neighbours[comment.get('UserId')] = 'user'
-
-    # TODO same as above 
-    if comment.get('PostId') is not None:
-        neighbours[comment.get('PostId')] = 'post'
-
-
-    return neighbours
-
-
 
 if __name__ == '__main__':
     main()
