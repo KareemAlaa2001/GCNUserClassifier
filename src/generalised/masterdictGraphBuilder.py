@@ -112,13 +112,11 @@ def shuffleData(masterdict):
     return masterlist
 
 # Should probably build the interaction graph using just the ids, then using the indexguide to convert ids to indexes
-# Can do this by looping over all posts, users and comments and building one sided interaction graphs, 
+# Can do this by looping over all nodetypes and building one sided interaction graphs, 
 # then looping over that graph to put the corresponding second sides to complete the graph
 def buildIdNeighbourhoodDict(masterdict, schema):
-    # will contain entries such as posts: {id: {neighbourid: 'post'|'user'|'comment'}}, 
     idNeighbourhoods = initEmptyTypesDict(schema)
 
-    # NOTE need to make sure the masterdict structure im using inside is consistent with the one I will be constructing
     for nodetype in schema:
         for node in masterdict[nodetype]:
             neighbours = constructNeighbours(node, nodetype, schema)

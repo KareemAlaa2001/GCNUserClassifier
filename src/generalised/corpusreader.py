@@ -26,7 +26,7 @@ class CorpusReader:
 
     
 
-class SchemaBasedCorpusReader:
+class SchemaBasedCorpusProcessor:
     def __init__(self, data, toptypes, schema):
         self.schema = schema
         self.data = data
@@ -35,6 +35,9 @@ class SchemaBasedCorpusReader:
     # TODO implement new agreed format
     def readCorpus(self):
         return buildMasterDict(self.data, self.schema, self.toptypes)
+
+
+# TODO sort out verification on what comes out of the non-schema based stuff so i can use it in the next phase
 
 
 # TODO if time exists (prob not), can make this more sophisticated
