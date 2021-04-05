@@ -21,8 +21,19 @@ class AbstractCorpusProcessor(ABC):
 
 class CorpusReader:
 
-    def readCorpus(self, filename, schema=None):
-        pass
+    def __init__(self, schema_based):
+
+        if not isinstance(schema_based, bool):
+            raise Exception("Value passed into schema_based is not a boolean!")
+
+        self.schema_based = schema_based
+
+    def readCorpus(self, data, schema=None, toptypes=None):
+        if self.schema_based:
+            if schema is None:
+                raise Exception("This CorpusReader object was set to be schema based, but no schema was passed in!")
+            
+
 
     
 

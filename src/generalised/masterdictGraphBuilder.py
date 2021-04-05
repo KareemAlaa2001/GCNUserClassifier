@@ -1,6 +1,8 @@
+from re import L
 import numpy as np
 import random
 from genhelpers import initEmptyTypesDict
+from indexGraphBuilder import buildTransitivesMultipleTypedGraph
 # from fvBuilder import *
 # from extraction import recentComments, recentPosts, recentUsers
 # from helpers import *
@@ -61,6 +63,23 @@ def main():
         },
     }
     buildGCNGraphFromMasterdict(masterdict, schema)
+
+
+class MasterdictGraphProcessor:
+    def __init__(self, transitive=False):
+        self.transitive = transitive
+
+    def buildGraphsFromMasterDict(self, masterdict, schema):
+        indexGuide = buildShuffledIndexGuide(masterdict, schema)
+        idGraph = buildIdNeighbourhoodDict(masterdict, schema)
+
+        if (self.transitive):
+            idGraph = buildTransitivesMultipleTypedGraph(idGraph)
+
+        gcngraph = convertIdGraphToIndexGraph(idGraph, indexGuide)
+
+        return gcngraph, idGraph, indexGuide # returns indexGCNGraph, idGraph, indexGuide
+
 
 # takes individual lists of posts, users and comments and builds the corresponding adjacency matrices in dict form
 def buildGCNGraphFromMasterdict(masterdict, schema):
