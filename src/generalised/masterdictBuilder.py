@@ -156,14 +156,14 @@ def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
                     entryDict[att] = value
 
             elif att in entrySchema.get('featureAtts'):
-                if isinstance:
-                    pass
-                    # todo - figure out this scenario where a feature points to a dict
+                pass
 
             elif att == entrySchema.get('idAtt'):
                 entryId = entry.get(att)
 
             else:
+                # TODO maybe change this to ignore at some point? Idk - need to figure out how I'll structure this after dealing with CorpusReader
+                raise Exception("Custom attribute names ain't supported here bruh, use the CorpusReader class")
                 pass # can allow for custom attributes here - NAH we doing custom atts using the CorpusReader abstract class
 
         if entryId is None:

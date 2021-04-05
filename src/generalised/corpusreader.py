@@ -3,9 +3,44 @@ from abc import ABC, abstractmethod
 
 class AbstractCorpusReader(ABC):
 
+    def init(self, filename, schema=None):
+        if schema is not None:
+            pass # call modules to use schema-based approaches here
+        else:
+            # calls the readCorpus method implemented in the subclass. 
+            # This will return an object representing the whole corpus that I TODO need to decide on its look
+            result = self.readCorpus(filename)
+            verifyReadCorpusResultFormat(result)
+            pass # here is where I should be putting the factory design pattern to use I guess? 
+                # - not even, can just call self.readCorpus - need to test if this actually works though
+
     @abstractmethod
     def readCorpus(self):
         pass
+
+# 5aly el habd for bokra
+
+# want to be able to accommodate multiple node types
+def verifyReadCorpusResultFormat(data):
+    pass
+    
+
+
+
+
+
+"""
+Can make a class to deal with node indexing as an intermediate, that can then return the indexGuide. 
+This can make the graphbuilder only have to deal with nodes already indexed among all typesx
+
+ and not hav
+
+"""
+
+
+
+
+
 
 """
 STUART'S EMAIL:
