@@ -1,7 +1,7 @@
 from queue import Queue
 
 # NOTE - changing masterdict to include an extra "internal-misc" type for any dict entries that are not going to be nodes in the graph - leh, manyaka heya?
-    
+
 
 def buildMasterDict(data, schema, toptypes):
     masterdict = {} 

@@ -57,7 +57,7 @@ class SchemaBasedCorpusProcessor(AbstractCorpusProcessor):
 
 
 # TODO if time exists (prob not), can make this more sophisticated
-# TODO can flesh out XML extraction OR can figure out a way to extend to support mult files
+# can flesh out XML extraction OR can figure out a way to extend to support mult files
 class FileExtractor:
     def __init__(self, fileformat):
 
@@ -81,7 +81,7 @@ class FileExtractor:
 
         
 
-# TODO deal with the FVs and wrap stuff like graph building and all that
+# TODO deal with the FVs
 
 
 # want to be able to accommodate multiple node types
