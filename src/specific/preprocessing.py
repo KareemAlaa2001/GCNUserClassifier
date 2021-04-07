@@ -58,11 +58,6 @@ def extractNodeType(root, filterFunc, **specialTypeArgs):
             return getFilteredChildrenList(filterFunc=filterFunc, root=root)
 
 
-
-
-
-    pass
-
 def buildFVsAndGraphs(posts, users, comments):
     with CoreNLPClient(
             annotators=['tokenize','ssplit','pos','lemma','ner'],
