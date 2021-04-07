@@ -36,5 +36,5 @@ def alldictvaluesatisfytype(data,type):
 def allkeyssatisfytype(data, type):
     return all(list(map(lambda att: isinstance(att, type),data)))
 
-def allmemberssatisfytypes(data, types):
-    return all(list(map(lambda member: any(list(map(lambda t: isinstance(data,t), types))),data)))
+def allmemberssatisfyanytypes(data, types):
+    return all(list(map(lambda member: any(list(map(lambda t: isinstance(member,t), types))),data)))

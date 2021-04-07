@@ -99,18 +99,18 @@ def verifyReadCorpusResultFormat(data):
                         return True
                     else:
                         estr = "Values mapped to node ids were not all positive integers, so werent all neighbour indexes"
-                        raise Exception(estr)
+                        raise ValueError(estr)
             else:
-                raise Exception("Not all node keys are positive integers! They are supposed to represent node indexes")
+                raise ValueError("Not all node keys are positive integers! They are supposed to represent node indexes")
 
         else:
             if verifyMultipeTypeGraph(data):
                 return True
             else:
-                raise Exception("There was a problem with the format that you entered!")
+                raise ValueError("There was a problem with the format that you entered!")
     else:
         estr = "Data is not in a dictionary format!"
-        raise Exception(estr)
+        raise ValueError(estr)
 
 
 
@@ -138,7 +138,7 @@ def verifyMultipeTypeGraph(graph):
                                     for ntype in neighbourhood:
                                         if ntype not in nodetypes:
                                             estr = "Node type " + ntype + " passed into neighbours of node " + nodeid + " is not one of the recognised types!"
-                                            raise Exception(estr)
+                                            raise ValueError(estr)
 
                                     if alldictvaluesatisfytype(neighbourhood, list):
                                         for ntype in neighbourhood:
@@ -146,24 +146,24 @@ def verifyMultipeTypeGraph(graph):
                                                 return True
 
                                             else:
-                                                raise Exception("Non-int index neighbours entered")
+                                                raise ValueError("Non-int index neighbours entered")
 
                                 else:
                                     estr = "Node types passed in for nodeid " + nodeid + " were not all strings, invalid format"
-                                    raise Exception(estr)
+                                    raise ValueError(estr)
                         else:
                             estr = "Nodetype " + nodetype + " mapping for some of its children was not a dict"
-                            raise Exception(estr)
+                            raise ValueError(estr)
                     else:
                         estr = "Nodetype " + nodetype + " had a key which was not a node id! Was not a positive integer"
-                        raise Exception(estr)
+                        raise ValueError(estr)
                 else:
                     estr = "Nodetype " + nodetype + " mapping was not a dict"
-                    raise Exception(estr)
+                    raise ValueError(estr)
         else:
-            raise Exception("Suppsoed to have string nodetypes passed in at the top")
+            raise ValueError("Suppsoed to have string nodetypes passed in at the top")
     else:
-        raise Exception("Data is not in a dictionary format!")
+        raise ValueError("Data is not in a dictionary format!")
 
 
 

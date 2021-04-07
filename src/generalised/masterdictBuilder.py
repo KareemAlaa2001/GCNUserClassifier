@@ -23,7 +23,7 @@ def buildMasterDict(data, schema, toptypes):
         toptype = toptypes
 
         if not verify_toptype(toptype, schema):
-            raise Exception("Toptype passed in is not in the list of types outlined in the schema!")
+            raise ValueError("Toptype passed in is not in the list of types outlined in the schema!")
 
         # if the data passed in is in a list form: could be a list of nodes of the same type or mixed types
         if isinstance(data, list):
@@ -36,7 +36,7 @@ def buildMasterDict(data, schema, toptypes):
                     toExplore.put((topentry,toptype))
 
                 else: 
-                    raise Exception("A toptype was passed in, but not all entries in the list satisfy that type!")
+                    raise ValueError("A toptype was passed in, but not all entries in the list satisfy that type!")
 
             # now done with verification, time to actually build the masterdict!
 
@@ -47,26 +47,26 @@ def buildMasterDict(data, schema, toptypes):
                 toExplore.put((data,toptype))
             
             else: 
-                raise Exception("A toptype was passed in, but the data dict top entry does not satisfy that type!")
+                raise ValueError("A toptype was passed in, but the data dict top entry does not satisfy that type!")
 
             masterdict = buildMasterDictWithKnownToExploreQueue(toExplore, schema)
 
         else:
-            raise Exception("Invalid value detected!")
+            raise ValueError("Invalid value detected!")
 
     
     else: # if toptypes is a list! in this case we want to take in a list of mixed types - could accept an extra arg with the indexed nodetypes
         if isinstance(data, list):
             if toptypes is None:
-                raise Exception("No toptype list was passed in showing the toptypes of all the nodes in the highest level list!")
+                raise ValueError("No toptype list was passed in showing the toptypes of all the nodes in the highest level list!")
 
             elif len(toptypes) != len(data):
-                raise Exception("Toptype list passed in has a lengh != to the length of the data list!")
+                raise ValueError("Toptype list passed in has a lengh != to the length of the data list!")
 
             for t in toptypes:
                 if t not in schema:
                     estr = "Type " + t + " in the toptypelist passed in does not exist in the schema!"
-                    raise Exception(estr)
+                    raise ValueError(estr)
 
             # now that things are verified, can now build the masterdict using the toptypes
             # can essentially do that by appending masterdicts built from each
@@ -81,14 +81,14 @@ def buildMasterDict(data, schema, toptypes):
                     toExplore.put((data,toptypes))
                 
                 else: 
-                    raise Exception("A toptype was passed in, but the data dict top entry does not satisfy that type!")
+                    raise ValueError("A toptype was passed in, but the data dict top entry does not satisfy that type!")
 
                 entryMasterDict = buildMasterDictWithKnownToExploreQueue(toExplore, schema)
 
                 masterdict.update(entryMasterDict)
 
         else:
-            raise Exception("No support for mixed type non-list structures at the top level of the passed in data")
+            raise ValueError("No support for mixed type non-list structures at the top level of the passed in data")
 
     return masterdict
 
@@ -105,7 +105,7 @@ def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
         entryDict = {}
         entrySchema = schema.get(entrytype)
         if entrySchema is None:
-            raise Exception("Passed in entry type does not exist in the schema!")
+            raise ValueError("Passed in entry type does not exist in the schema!")
         # looping over all the attributes in the entry. Either this att links to an individual value, a list or a dict
         # The list could either be a list of values or list of dicts
         for att in entry:
@@ -144,11 +144,11 @@ def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
 
             else:
                 # TODO maybe change this to ignore at some point? Idk - need to figure out how I'll structure this after dealing with CorpusReader
-                raise Exception("Custom attribute names ain't supported here bruh, use the CorpusReader class")
+                raise ValueError("Custom attribute names ain't supported here bruh, use the CorpusReader class")
                 pass # can allow for custom attributes here - NAH we doing custom atts using the CorpusReader abstract class
 
         if entryId is None:
-            raise Exception("there was no id attribute encountered in this entry that matched the id property in the ")
+            raise ValueError("there was no id attribute encountered in this entry that matched the id property in the ")
 
         masterDict[entrytype][entryId] =  entryDict
 
@@ -225,36 +225,36 @@ def verify_schema(schema):
 
         if schema[nodetype].get('idAtt') is None:
             estring = "This schema is missing an attribute named \'idAtt\' for the unique id for node type: " + str(nodetype)
-            raise Exception(estring)
+            raise ValueError(estring)
 
         if schema[nodetype].get('featureAtts') is None:
             estring = "This schema is missing an attribute named \'featureAtts\' containing a list of attribute names associated with the features for node type: " + str(nodetype)
-            raise Exception(estring)
+            raise ValueError(estring)
 
         if schema[nodetype].get('linkAtts') is None:
             estring = """This schema is missing an attribute named \'linkAtts\' containing a dict with (attributename: neighbourtype) entries, 
             where attributename is the name of the attribute that has the id of the linked neighbour and neighbourtype is the respective type of that neighbour. This is missing for nodetype: """ + str(nodetype)
-            raise Exception(estring)
+            raise ValueError(estring)
 
         # checking that the value passed into the featureAtts attribute is a list
         featureAtts = schema[nodetype].get('featureAtts')
         if not isinstance(featureAtts, list):
             estring = "The value associated with the \'featureAtts\' attribute is not a list for node type: " + str(nodetype) + " , it should have the list of the names of attributes associated with features. If none exist, pass an empty list."
-            raise Exception(estring)
+            raise ValueError(estring)
 
         # checking that the value passed into the linkAtts attribute is a dict
         linkAttDict = schema[nodetype].get('linkAtts')
         if not isinstance(linkAttDict, dict):
             estring = "The value associated with the \'linkAtts\' attribute is not a dict for node type: " + str(nodetype) + """ . It should have (attributename: neighbourtype) entries, 
             where attributename is the name of the attribute that has the id of the linked neighbour and neighbourtype is the respective type of that neighbour. If none exist, pass an empty dict."""
-            raise Exception(estring)
+            raise ValueError(estring)
 
     # verifying that the values in linkatts point to knowntypes
     for nodetype in schema:
         for linkAtt in schema[nodetype]['linkAtts']:
             if schema[nodetype]['linkAtts'][linkAtt] not in knowntypes:
                 estring = "The passed in neighbour type in the link attribute " + str(linkAtt) + " for node type " + str(nodetype) + " does not match one of the node types outlined in the schema!"
-                raise Exception(estring)
+                raise ValueError(estring)
 
     return schema
     
