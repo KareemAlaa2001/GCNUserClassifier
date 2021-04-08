@@ -81,11 +81,32 @@ class FVHandler:
             raise ValueError(featurevectors)
 
 
-class GCNRUnner:
+class GCNRunner:
 
     # NOTE any featurevectors are in a csr_matrix. NOTE any labels are in a numpy array. NOTE test_indices is a list. NOTE adj_graph is a dict
-    def __init__(self, train_labelled, test_instances, train_labels, test_labels, all_train, all_train_labels, test_indicies, adj_graph):
+    def __init__(self, train_labelled, test_instances, train_labels, test_labels, all_train, all_train_labels, test_indices, adj_graph):
+        self.fvHandler = FVHandler(train_labelled,test_instances,train_labels, test_labels, all_train, all_train_labels)
+        if verify_test_indices(test_indices):
+            self.test_indices = test_indices
+
+        self.adj_graph = adj_graph
+
+    def train_gcn(self):
         pass
+
+
+
+def verify_test_indices(test_indices, all_train):
+    if isinstance(test_indices, list):
+        if alllistmembersarepositiveints(test_indices):
+            if max(test_indices) < all_train.get_shape()[0]:
+                return True
+            else:
+                raise ValueError("Test indices list has indices larger than the number of elements in the training set!")
+        else:
+            raise ValueError("Not all elements in the test indices list are nonnegative ints!")
+    else:
+        raise ValueError("Test indices is not a list!")
 
 
 def checkEqualLengths(fvs, labels):
