@@ -1,0 +1,3 @@
+[submodule "src/generalised/lib/gcn"]
+	path = src/generalised/lib/gcn
+	url = https://github.com/KareemAlaa2001/gcn.git

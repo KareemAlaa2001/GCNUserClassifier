@@ -38,6 +38,9 @@ class CorpusReader:
             else:
                 raise Exception("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
 
+# TODO handle direct output of GCN Graph from CorpusReader
+# NOTE possible approach: move all verification to the constructor, then have methods to either retreive the masterdict, gcngraph or all of the gcngraph assoc stuff
+
 
 class AbstractCorpusProcessor(ABC):
 

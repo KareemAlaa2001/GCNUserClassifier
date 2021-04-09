@@ -42,7 +42,6 @@ def main():
 
     schema = {
         'typeA': {
-            'toptype': True, # I might leave the toptype out of the schema, depending on how I format the masterdict builder 
             'idAtt': 'identifier',
             'featureAtts': ['featureA', 'feature2','feature3'],
             'linkAtts': {

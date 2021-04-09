@@ -1,6 +1,7 @@
 from genhelpers import *
 import scipy.sparse as sp
 import numpy as np
+import lib.gcn.gcn.train as gcntrain
 
 # class for converting the set of passed in featurevectors into a csr_matrix object
 # accepts either {nodeid: [fv]} or [[fv]] indexed
@@ -83,8 +84,13 @@ class FVHandler:
 
 class GCNRunner:
 
-    # NOTE any featurevectors are in a csr_matrix. NOTE any labels are in a numpy array. NOTE test_indices is a list. NOTE adj_graph is a dict
+    # NOTE any featurevectors are in a csr_matrix. 
+    # NOTE any labels are in a numpy array. 
+    # NOTE test_indices is a list. 
+    # NOTE adj_graph is a dict
     def __init__(self, train_labelled, test_instances, train_labels, test_labels, all_train, all_train_labels, test_indices, adj_graph):
+
+        # FVHandler handles all of the verification on the data
         self.fvHandler = FVHandler(train_labelled,test_instances,train_labels, test_labels, all_train, all_train_labels)
         if verify_test_indices(test_indices):
             self.test_indices = test_indices
@@ -92,7 +98,8 @@ class GCNRunner:
         self.adj_graph = adj_graph
 
     def train_gcn(self):
-        pass
+        gcntrain.test_func()
+        # gcntrain.train_gcn(True, self)
 
 
 
@@ -247,17 +254,18 @@ def handleFeaturevectors(featurevectors):
         raise ValueError(featurevectors)
 
 def main():
-    test_fvs = [[0,1,0,1,1],[1,0,1,0,1]]
-    test_labels = [[1,0],[0,1]] 
+    gcntrain.test_func()
+    # test_fvs = [[0,1,0,1,1],[1,0,1,0,1]]
+    # test_labels = [[1,0],[0,1]] 
 
-    # handler = FVHandler()
-    handled_fv = handleFeaturevectors(test_fvs)
-    handled_labels = handleLabels(test_labels)
+    # # handler = FVHandler()
+    # handled_fv = handleFeaturevectors(test_fvs)
+    # handled_labels = handleLabels(test_labels)
 
-    print(handled_fv)
-    print(handled_labels)
+    # print(handled_fv)
+    # print(handled_labels)
 
-    checkEqualLengths(handled_fv, handled_labels)
+    # checkEqualLengths(handled_fv, handled_labels)
 
 if __name__ == '__main__':
     main()
