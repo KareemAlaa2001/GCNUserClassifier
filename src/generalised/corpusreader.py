@@ -20,9 +20,9 @@ class CorpusReader:
             
             proc = SchemaBasedCorpusProcessor(data, toptypes, schema)
 
-            masterdict = proc.readCorpus()
+            self.masterdict = proc.readCorpus()
 
-            return masterdict
+            return self.masterdict
         
         else:
             if proc is None:
@@ -34,6 +34,7 @@ class CorpusReader:
             result = proc.readCorpus()
 
             if verifyReadCorpusResultFormat(result):
+                self.intermediategraph = result
                 return result
             else:
                 raise Exception("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")

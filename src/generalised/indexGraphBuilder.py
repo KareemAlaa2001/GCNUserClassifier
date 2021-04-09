@@ -21,7 +21,7 @@ def processAdjacenciesMultipleTypes(graph, transitive=False, shuffle=False):
     missingsfilled = masterdictGraphBuilder.buildLikewiseRelationships(graph)
 
     if transitive:
-        missingsfilled = buildTransitivesMultipleTypedGraph(missingsfilled) # TODO - deal with transitive relationships
+        missingsfilled = buildTransitivesMultipleTypedGraph(missingsfilled) 
 
     gcngraph = masterdictGraphBuilder.convertIdGraphToIndexGraph(missingsfilled)
 

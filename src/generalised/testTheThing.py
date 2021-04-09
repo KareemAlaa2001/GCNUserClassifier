@@ -7,8 +7,11 @@ def main():
     # comments = fextractor.extractData("../../datasets/meta.stackoverflow.com/Comments.xml")
     # users = fextractor.extractData("../../datasets/meta.stackoverflow.com/Users.xml")
 
-    reader = CorpusReader(False)
+    reader = CorpusReader(True)
+
     # reader.readCorpus() # TODO implement this whole setup out with the SO_ds and make it happennnn
+
+
 
 
 
