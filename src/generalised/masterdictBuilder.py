@@ -137,18 +137,26 @@ def buildMasterDictWithKnownToExploreQueue(toExplore, schema):
                     entryDict[att] = value
 
             elif att in entrySchema.get('featureAtts'):
-                pass
+                if isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, dict):
+                            raise ValueError("No Support for dictionary-based features! Might be worth building your own corpusreader")
+                    
+                    entryDict[att] = value
+                elif isinstance(value, dict):
+                    raise ValueError("No Support for dictionary-based features! Might be worth building your own corpusreader")
 
+                else:
+                    entryDict[att] = value
             elif att == entrySchema.get('idAtt'):
                 entryId = entry.get(att)
 
             else:
-                # TODO maybe change this to ignore at some point? Idk - need to figure out how I'll structure this after dealing with CorpusReader
-                raise ValueError("Custom attribute names ain't supported here bruh, use the CorpusReader class")
-                pass # can allow for custom attributes here - NAH we doing custom atts using the CorpusReader abstract class
+                
+                pass # Ignore atts not mentioned in the schema
 
         if entryId is None:
-            raise ValueError("there was no id attribute encountered in this entry that matched the id property in the ")
+            raise ValueError("there was no id attribute encountered in this entry that matched the id property in the schema!")
 
         masterDict[entrytype][entryId] =  entryDict
 
