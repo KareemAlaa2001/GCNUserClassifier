@@ -53,7 +53,24 @@ def main():
 """
 def extractFeaturevectors(posts, users, comments, client):
     
-    pass
+    fvmap = {'post': {}, 'comment':{}, 'user':{}}
+
+    for post in posts:
+        postfv = postToFV(post, client)
+        fvmap['post'][post.get('Id')] = postfv
+
+    for user in users:
+        userfv = userToFV(user, client)
+        fvmap['user'][user.get('Id')] = userfv
+
+    for comment in comments:
+        commentfv = commentToFV(comment,client)
+        fvmap['comment'][comment.get('Id')] = commentfv
+
+    return fvmap
+
+
+    
 
 
 

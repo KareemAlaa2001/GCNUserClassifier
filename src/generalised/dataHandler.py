@@ -1,3 +1,4 @@
+from typing import MutableMapping
 from genhelpers import *
 import scipy.sparse as sp
 import numpy as np
@@ -98,8 +99,8 @@ class GCNRunner:
         self.adj_graph = adj_graph
 
     def train_gcn(self):
-        gcntrain.test_func()
-        # gcntrain.train_gcn(True, self)
+        # gcntrain.test_func()
+        gcntrain.train_gcn(True, self)
 
 
 
@@ -114,6 +115,18 @@ def verify_test_indices(test_indices, all_train):
             raise ValueError("Not all elements in the test indices list are nonnegative ints!")
     else:
         raise ValueError("Test indices is not a list!")
+
+
+def convertIdFVGuideToFVIndexGuide(multiIdFvMap, indexGuide):
+    indexFVMap = {}
+
+    for ntype in multiIdFvMap:
+        typefvs = multiIdFvMap[ntype]
+        for nodeid in multiIdFvMap[ntype]:
+            nodeindex = indexGuide[ntype][nodeid]
+            indexFVMap[nodeindex] = typefvs[nodeid]
+
+    return indexFVMap
 
 
 def checkEqualLengths(fvs, labels):
@@ -156,6 +169,8 @@ def isOHE(l):
     else: 
         return False
 
+
+# converts a dictionary of format {nodeid: featurevector } to a matrix containing those featurevectors at the given ids
 def convertfvdict2dList(fvdict):
     mat = [[]] * len(fvdict)
 

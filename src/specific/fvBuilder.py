@@ -51,7 +51,7 @@ def main():
 
  Will I have an extra data structure that maps ids with indexes?
 """
-def extractFeaturevectors(posts, users, comments, client):
+def extractSOFeaturevectors(posts, users, comments, client):
     
     pass
 
