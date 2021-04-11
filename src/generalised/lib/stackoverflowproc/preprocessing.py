@@ -1,5 +1,5 @@
-import lib.stackoverflowproc.fvBuilder
-import lib.stackoverflowproc.graphBuilder
+import lib.stackoverflowproc.fvBuilder as fvBuilder
+import lib.stackoverflowproc.graphBuilder as graphBuilder
 from stanza.server import CoreNLPClient
 from lib.stackoverflowproc.extraction import *
 from lib.stackoverflowproc.helpers import isComment, isPost, isUser

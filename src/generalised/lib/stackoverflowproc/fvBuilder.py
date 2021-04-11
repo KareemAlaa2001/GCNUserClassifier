@@ -1,4 +1,4 @@
-from lib.stackoverflowproc.extraction import recentPosts, recentComments
+# from lib.stackoverflowproc.extraction import recentPosts, recentComments
 import stanza
 
 from stanza.server import CoreNLPClient
@@ -18,6 +18,7 @@ def main():
             annotators=['tokenize','ssplit','pos','lemma','ner'],
             timeout=30000,
             memory='16G') as client:
+        pass
 
         # ann = client.annotate(text)
         # sentences = ann.sentence
@@ -25,24 +26,24 @@ def main():
         #     for token in sent.token:
         #         print(token.word, token.ner)
     
-        for i in range(100,110):
-            samplePost = recentPosts[i]
-            sampleComment = recentComments[i]
+    #     for i in range(100,110):
+    #         samplePost = recentPosts[i]
+    #         sampleComment = recentComments[i]
             
-            print("SAMPLE POST", i, ":")
-            print(samplePost['Body'])
-            print('\n')
-            fv = postToFV(samplePost, client)
-            print(fv)
+    #         print("SAMPLE POST", i, ":")
+    #         print(samplePost['Body'])
+    #         print('\n')
+    #         fv = postToFV(samplePost, client)
+    #         print(fv)
 
-            print("SAMPLE COMMENT", i, ":")
-            print(sampleComment['Text'])
-            print('\n')
-            fv = commentToFV(sampleComment, client)
-            print(fv)
+    #         print("SAMPLE COMMENT", i, ":")
+    #         print(sampleComment['Text'])
+    #         print('\n')
+    #         fv = commentToFV(sampleComment, client)
+    #         print(fv)
 
             
-    pass
+    # pass
 
 """
  TODO figure out how I'm going to return the featurevectors of all the posts, users and comments
