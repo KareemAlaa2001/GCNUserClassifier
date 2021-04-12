@@ -123,16 +123,12 @@ def postToFV(post, client):
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
 
-        fv.append(rangeBinAnswerOrCommentCount(float(post['AnswerCount'])))
-        fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
+        fv.append(rangeBinAnswerOrCommentCount(float(post.get('AnswerCount'))))
+        fv.append(rangeBinAnswerOrCommentCount(float(post.get('CommentCount'))))
         
     else:
         
-        print(post)
-
-        if post['ViewCount'] == '-1':
-            raise Exception("Somehow set to -1 but not the actual viewcount???????")
-        fv.append(rangeBinViews(float(post['ViewCount'])))
+        fv.append(rangeBinViews(post.get('ViewCount')))
 
         # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
@@ -140,10 +136,10 @@ def postToFV(post, client):
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0])
-        fv.append(rangeBinAnswerOrCommentCount(float(post['CommentCount'])))
+        fv.append(rangeBinAnswerOrCommentCount(float(post.get('CommentCount'))))
 
-    fv.append([float(post['IsAcceptedAnswer'])])
-    print(fv)
+    fv.append([float(post.get('IsAcceptedAnswer'))])
+    # print(fv)
     flat_vec = flatten(fv)
     return flat_vec
 
@@ -151,13 +147,13 @@ def postToFV(post, client):
 # Params: user - user dictionary, client - CoreNLP client for NER
 def userToFV(user, client):
     fv = []
-    userner = convertStringToNER(user['AboutMe'], client)
+    userner = convertStringToNER(user.get('AboutMe'), client)
 
     fv.append([
         0.0,1.0,0.0
     ])
 
-    fv.append(rangeBinScore(float(user['Reputation'])))
+    fv.append(rangeBinScore(float(user.get('Reputation'))))
 
     # fv.append(sotimeToTimestamp(user['CreationDate']))
 
@@ -166,14 +162,14 @@ def userToFV(user, client):
 
     fv.append(userner)
 
-    viewsVector = rangeBinViews(float(user['Views']))
+    viewsVector = rangeBinViews(float(user.get('Views')))
 
     fv.append(viewsVector)
 
     # fv.append(sotimeToTimestamp(user['LastAccessDate']))
     
-    fv.append(rangeBinUpDownVotes(float(user['UpVotes'])))
-    fv.append(rangeBinUpDownVotes(float(user['DownVotes'])))
+    fv.append(rangeBinUpDownVotes(float(user.get('UpVotes'))))
+    fv.append(rangeBinUpDownVotes(float(user.get('DownVotes'))))
 
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
     fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
@@ -186,13 +182,13 @@ def userToFV(user, client):
 
 def commentToFV(comment, client):
     fv = []
-    commentner = convertStringToNER(comment['Text'], client)
+    commentner = convertStringToNER(comment.get('Text'), client)
 
     fv.append([
         0.0,0.0,1.0
         ]) # Post, User or Comment
 
-    fv.append(rangeBinScore(float(comment['Score']))) 
+    fv.append(rangeBinScore(float(comment.get('Score')))) 
 
     fv.append(rangeBinActiveDuration(sotimeToTimestamp(comment['CreationDate']),sotimeToTimestamp(comment['LastActivityDate'])))
     
@@ -214,7 +210,7 @@ def commentToFV(comment, client):
 
 def getPostNER(post, client):
 
-    bodyNER = convertStringToNER(post['Body'], client)
+    bodyNER = convertStringToNER(post.get('Body'), client)
 
     nerVector = np.array(bodyNER)
 

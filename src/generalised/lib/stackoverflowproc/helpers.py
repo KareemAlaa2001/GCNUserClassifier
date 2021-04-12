@@ -36,7 +36,13 @@ def calc_duration_active(creation, latest):
 
 # THIS FUNCTION CAN BE EXPANDED TO INCLUDE ANY FUTURE ADDITIONAL PREPROCESSING NEEDED FOR THE STRING
 def convertStringToNER(string, client):
+    if string is None:
+        return np.zeros(24)
     string = cleanXML(string)
+
+    if len(string) > 100000:
+        string = string[:100000]
+
     ann = client.annotate(string)
     nerVector = buildNERVector(ann)
     return nerVector
@@ -92,16 +98,24 @@ def rangeBinActiveDuration(creation, last):
     
 # views bins were based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinViews(views):
-    return range_bin_num_feature(views, [0,10,100,1000])
+    if views is None:
+        return np.zeros(5)
+    return range_bin_num_feature(float(views), [0,10,100,1000])
 
 # score bins were based on what was observed as a distribution of values in the concat score list of users, posts and comments
 def rangeBinScore(score):
+    if score is None:
+        return np.zeros(11)
     return range_bin_num_feature(score, [-10,-1,0,2,5,10,100,1000,10000,100000])
 
 def rangeBinAnswerOrCommentCount(count):
+    if count is None:
+        return np.zeros(6)
     return range_bin_num_feature(count, [0,2,5,10,20])
 
 def rangeBinUpDownVotes(vote):
+    if vote is None:
+        return np.zeros(9)
     return range_bin_num_feature(vote, [0,2,5,10,20,50,100,1000])
 
 # takes a list of string (or any other type) values and maps them to ints

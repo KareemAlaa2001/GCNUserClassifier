@@ -37,13 +37,14 @@ def listChildrenAttrib(node):
 
 
 def main():
-    print("testing different extraction functions")
-    datadict = extractJSONFileToDict("testjson.json")
-    # print(datadict)
-    print(datadict['website_A_thread_1_post_100'])
+    pass
+    # print("testing different extraction functions")
+    # datadict = extractJSONFileToDict("testjson.json")
+    # # print(datadict)
+    # print(datadict['website_A_thread_1_post_100'])
 
-    print(extractThreadId('website_A_thread_1_post_100'))
-    print(extractPostId('website_A_thread_1_post_100'))
+    # print(extractThreadId('website_A_thread_1_post_100'))
+    # print(extractPostId('website_A_thread_1_post_100'))
 
 
 

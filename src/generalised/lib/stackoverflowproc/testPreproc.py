@@ -21,15 +21,15 @@ def testRangeBinNumFt():
     bins = [0,2,5,10]
     num = 1
 
-    print(range_bin_num_feature(num, bins))
-    # assert range_bin_num_feature(num, bins).all() == [0,1,0,0,0]
+    # print(range_bin_num_feature(num, bins))
+    # # assert range_bin_num_feature(num, bins).all() == [0,1,0,0,0]
 
-    num = 12
-    print(range_bin_num_feature(num, bins))
-    # assert range_bin_num_feature(num, bins).all() == [0,0,0,0,1]
+    # num = 12
+    # print(range_bin_num_feature(num, bins))
+    # # assert range_bin_num_feature(num, bins).all() == [0,0,0,0,1]
 
-    num = -5
-    print(range_bin_num_feature(num, bins))
+    # num = -5
+    # print(range_bin_num_feature(num, bins))
     # assert range_bin_num_feature(num, bins).all() == [1,0,0,0,0]
 
 

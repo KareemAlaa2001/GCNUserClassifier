@@ -48,8 +48,8 @@ def main():
 
     with CoreNLPClient(
             annotators=['tokenize','ssplit','pos','lemma','ner'],
-            timeout=30000,
-            memory='16G') as client:
+            timeout=200000,
+            memory='16G', be_quiet=True) as client:
         idFVMap = extractFeaturevectors(recentPosts, recentUsers, recentComments, client)
 
         indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
@@ -159,8 +159,8 @@ def split_dataset(users, indexGuide, idFvGuide, splitsize):
     indices = [i for i in range(len(train_all_fvs))]
     random.shuffle(indices)
 
-    train_all_fvs = train_all_fvs[indices]
-    train_all_labels = train_all_labels[indices]
+    train_all_fvs = [train_all_fvs[i] for i in indices]
+    train_all_labels = [train_all_labels[i] for i in indices]
 
     return train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels
     
