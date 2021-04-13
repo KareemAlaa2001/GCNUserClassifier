@@ -59,15 +59,15 @@ def extractFeaturevectors(posts, users, comments, client):
     for post in posts:
         postfv = postToFV(post, client)
         fvmap['post'][post.get('Id')] = postfv
-
+    print("did all the post fvs")
     for user in users:
         userfv = userToFV(user, client)
         fvmap['user'][user.get('Id')] = userfv
-
+    print("did all the user fvs")
     for comment in comments:
         commentfv = commentToFV(comment,client)
         fvmap['comment'][comment.get('Id')] = commentfv
-
+    print("did all the comment fvs")
     return fvmap
 
 

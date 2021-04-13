@@ -1,4 +1,5 @@
 import re
+from lib.stackoverflowproc.extraction import recentUsers, recentPosts, recentComments
 
 def extractPostId(headerstring):
     postmatch = re.search(r'post_\d+', headerstring)
@@ -38,3 +39,10 @@ def allkeyssatisfytype(data, type):
 
 def allmemberssatisfyanytypes(data, types):
     return all(list(map(lambda member: any(list(map(lambda t: isinstance(member,t), types))),data)))
+
+
+def main():
+    print(len(recentUsers), len(recentPosts), len(recentComments))
+
+if __name__ == '__main__':
+    main()

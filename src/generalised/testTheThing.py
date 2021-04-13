@@ -46,25 +46,26 @@ def main():
 
     gcngraph, idGraph, indexGuide = mdgraphproc.buildGraphsFromMasterDict(masterdict, schema)
 
+    print("Built the adjacency graph!!")
+
     with CoreNLPClient(
             annotators=['tokenize','ssplit','pos','lemma','ner'],
             timeout=200000,
             memory='16G', be_quiet=True) as client:
+
         idFVMap = extractFeaturevectors(recentPosts, recentUsers, recentComments, client)
+        print("Extracted all of the FVs!")
+        # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
 
-        indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
-
-        sheriffIdList = labelBuilder.getSheriffBadgeUserIds(recentUsers)
-
-        userLabels = labelBuilder.buildUserLabelsDict(recentUsers, indexGuide, sheriffIdList)
-        dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
-
+        
+        # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
+        print("splitting the dataset...")
         train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_dataset(recentUsers, indexGuide, idFVMap, 0.8)
-
+        print("dataset split complete! Running GCN now:")
         # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
 
         # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
-        gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices)
+        gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
 
         
 

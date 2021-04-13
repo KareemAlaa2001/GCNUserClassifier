@@ -248,6 +248,9 @@ recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 
+print(len(recentPosts))
+print(len(recentComments))
+print(len(recentUsers))
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")

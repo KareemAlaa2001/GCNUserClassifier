@@ -123,3 +123,76 @@ def getSheriffBadgeDisplayNames():
     "Kev", "Lasse V. Karlsen", "Alex Miller", "Nick Craver", "random", "Sampson", "Ivo Flipse", "mmyers", "Gumbo"]
     return sheriffDisplayNames
    
+
+"""
+Train GCN with SO stuff
+
+Test out inference to make sure it works 
+
+Create some different labels to classify the users/posts
+
+USE SEGMENTATION TO CLASSIFY USERS WITH A SUBSET OF THE TEST SET
+- this will allow me to show weaknesses on smaller datasets with short posts? with long posts? with X? with Y?
+
+- can use posts by n00b users vs experts
+
+- can use short vs long posts
+
+- can be able to breakdown the performance of GCN on different contexts and understand in what ways its strong vsv weak and why
+"""
+
+
+"""
+could have a core benchmark to extract users as we said for classification
+
+can then do an extra benchmark of adding domain specific regex (regex on java/python function or module names) to the features
+
+
+evaluate performance with F1 score
+
+Run analysis with different types of user groupings - see if the graph is better or worse of diff types of users
+
+Run analysis with different types of posts
+"""
+
+"""
+
+Stuart idea for regex-based stuff like URLs and namespaces:
+
+Go the regex as a preproc step before corenlp runm and replace all instances with a combination of chars of my own, 
+then if it is recognized add it as muy own feature later - might be a way to use stanza and avoid corenlp slowness
+
+"""
+
+
+"""
+
+Different Runs:
+
+Class for moderators 
+
+Class for expert/novice - multiclass by number of years
+
+Class for upvote/downvote
+"""
+
+"""
+Stuart usually does scripts, take in dataset/model name, test set to run everything for me
+"""
+
+"""
+Write up the report with placeholders to describe the experiments
+
+
+allow for tables with the different F1 scores - precision - recall - F1 - 
+Start writing ASAP
+Skeleton - bullet points fillout -  
+
+"""
+
+
+"""
+My demo might have a presentation with the problem, GCN architecture, run it, initial results, 
+
+IDEA: Show graphs and results connected with the data in a meaningful way while narrating and demostrating my understanding
+"""
