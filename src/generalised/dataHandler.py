@@ -39,7 +39,7 @@ class FVHandler:
 
 
     def handleLabels(self, labels):
-        if isinstance(labels, np.array):
+        if isinstance(labels, np.ndarray):
             return labels
 
         if isinstance(labels, dict):
@@ -93,24 +93,32 @@ class GCNRunner:
 
         # FVHandler handles all of the verification on the data
         self.fvHandler = FVHandler(train_labelled,test_instances,train_labels, test_labels, all_train, all_train_labels)
-        if verify_test_indices(test_indices):
-            self.test_indices = test_indices
-
+        fvh = self.fvHandler
         self.adj_graph = adj_graph
+
+        if verify_test_indices(test_indices,adj_graph):
+            self.test_indices = test_indices
+        else:
+            raise ValueError(test_indices)
+
+        
 
     def train_gcn(self):
         # gcntrain.test_func()
         gcntrain.train_gcn(True, self)
 
+    def save_model(self):
+        pass
 
 
-def verify_test_indices(test_indices, all_train):
+
+def verify_test_indices(test_indices, adj_graph):
     if isinstance(test_indices, list):
         if alllistmembersarepositiveints(test_indices):
-            if max(test_indices) < all_train.get_shape()[0]:
+            if all(list(map(lambda x: x in adj_graph, test_indices))):
                 return True
             else:
-                raise ValueError("Test indices list has indices larger than the number of elements in the training set!")
+                raise ValueError("Test indices list has indices that are not in the adjacency graph!")
         else:
             raise ValueError("Not all elements in the test indices list are nonnegative ints!")
     else:
@@ -286,10 +294,6 @@ if __name__ == '__main__':
     main()
 
 # TODO implement a class for handling ground truths
-
-
-# TODO implement a wrapper for running GCN
-
 
 # TODO test this whole damn thing 
 """

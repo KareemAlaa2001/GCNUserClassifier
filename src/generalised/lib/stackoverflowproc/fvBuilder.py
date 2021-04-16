@@ -4,6 +4,7 @@ import stanza
 from stanza.server import CoreNLPClient
 import numpy as np
 from lib.stackoverflowproc.helpers import *
+import json
 
 """
 export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
@@ -53,7 +54,7 @@ def main():
  Will I have an extra data structure that maps ids with indexes?
 """
 def extractFeaturevectors(posts, users, comments, client):
-    
+    print("Extracting SO Feature Vectors! This is going to take a while")
     fvmap = {'post': {}, 'comment':{}, 'user':{}}
 
     for post in posts:
@@ -68,12 +69,42 @@ def extractFeaturevectors(posts, users, comments, client):
         commentfv = commentToFV(comment,client)
         fvmap['comment'][comment.get('Id')] = commentfv
     print("did all the comment fvs")
+    saveFVMapToJSON(fvmap)
     return fvmap
 
+def saveFVMapToJSON(fvmap):
+    jayson = json.dumps(fvmap)
 
-    
+    f = open("fvmap.json","w")
+    f.write(jayson)
+    f.close()
 
 
+def extractFeatureVectorsWithoutNER(posts , users, comments):
+    fvmap = {'post': {}, 'comment':{}, 'user':{}}
+
+    for post in posts:
+        postfv = postToFV(post, None, includener=False)
+        fvmap['post'][post.get('Id')] = postfv
+        postfvlen = len(postfv)
+    print("did all the post fvs")
+    print("post fv length:")
+    print(postfvlen)
+    for user in users:
+        userfv = userToFV(user, None, includener=False)
+        fvmap['user'][user.get('Id')] = userfv
+        userfvlen = len(userfv)
+    print("did all the user fvs")
+    print("userfv length: ")
+    print(userfvlen)
+    for comment in comments:
+        commentfv = commentToFV(comment,None, includener=False)
+        fvmap['comment'][comment.get('Id')] = commentfv
+        commentfvlen = len(commentfv)
+    print("did all the comment fvs")
+    print("comment fv length:")
+    print(commentfvlen)
+    return fvmap
 
 """
 FEATUREVECTOR DOCUMENTATION:
@@ -98,9 +129,10 @@ MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
 
 """
 
-def postToFV(post, client):
+def postToFV(post, client, includener= True):
     fv = [] # need to decide on the structure for a general node FV, then use that here
-    postner = getPostNER(post, client)
+    if includener:
+        postner = getPostNER(post, client)
 
     fv.append([
         1.0,0.0,0.0
@@ -109,10 +141,9 @@ def postToFV(post, client):
     fv.append(rangeBinScore(float(post['Score'])))
 
     fv.append(rangeBinActiveDuration(sotimeToTimestamp(post['CreationDate']),sotimeToTimestamp(post['LastActivityDate'])))
-
-    # fv.append(sotimeToTimestamp(post['CreationDate']))
         
-    fv.append(postner)
+    if includener:
+        fv.append(postner)
 
     # If the post is a parent post in a thread
     if post['PostTypeId'] == '1':
@@ -145,9 +176,11 @@ def postToFV(post, client):
 
 # Function to construct the featurevector representing the user dictionary passed
 # Params: user - user dictionary, client - CoreNLP client for NER
-def userToFV(user, client):
+def userToFV(user, client, includener=True):
     fv = []
-    userner = convertStringToNER(user.get('AboutMe'), client)
+
+    if includener:
+        userner = convertStringToNER(user.get('AboutMe'), client)
 
     fv.append([
         0.0,1.0,0.0
@@ -159,8 +192,8 @@ def userToFV(user, client):
 
     fv.append(rangeBinActiveDuration(sotimeToTimestamp(user['CreationDate']),sotimeToTimestamp(user['LastAccessDate'])))
 
-
-    fv.append(userner)
+    if includener:
+        fv.append(userner)
 
     viewsVector = rangeBinViews(float(user.get('Views')))
 
@@ -180,9 +213,10 @@ def userToFV(user, client):
 
     return fv
 
-def commentToFV(comment, client):
+def commentToFV(comment, client, includener=True):
     fv = []
-    commentner = convertStringToNER(comment.get('Text'), client)
+    if includener:
+        commentner = convertStringToNER(comment.get('Text'), client)
 
     fv.append([
         0.0,0.0,1.0
@@ -191,16 +225,17 @@ def commentToFV(comment, client):
     fv.append(rangeBinScore(float(comment.get('Score')))) 
 
     fv.append(rangeBinActiveDuration(sotimeToTimestamp(comment['CreationDate']),sotimeToTimestamp(comment['LastActivityDate'])))
-    
-    fv.append(commentner)
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # Views
+    if includener:
+        fv.append(commentner)
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Downvotes
+    fv.append(rangeBinViews(comment.get('Views'))) # Views - will be all 0s here 
 
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # AnswerCount
-    fv.append([0.0,0.0,0.0,0.0,0.0,0.0]) # CommentCount
+    fv.append(rangeBinUpDownVotes(comment.get('UpVotes'))) # User Upvotes - will be all 0s again
+    fv.append(rangeBinUpDownVotes(comment.get('DownVotes'))) # User Downvotes - and again
+
+    fv.append(rangeBinAnswerOrCommentCount(comment.get("AnswerCount"))) # AnswerCount - againz
+    fv.append(rangeBinAnswerOrCommentCount(comment.get("CommentCount"))) # CommentCount - againz
 
     fv.append([0.0]) # Post.IsAcceptedAnswer
 

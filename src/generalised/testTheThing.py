@@ -1,11 +1,86 @@
 from corpusreader import CorpusReader, FileExtractor
 from lib.stackoverflowproc.extraction import recentUsers, recentPosts, recentComments
-from lib.stackoverflowproc.fvBuilder import extractFeaturevectors
+from lib.stackoverflowproc.fvBuilder import extractFeatureVectorsWithoutNER, extractFeaturevectors
 from stanza.server import CoreNLPClient
 from masterdictGraphBuilder import MasterdictGraphProcessor
 from dataHandler import GCNRunner, convertIdFVGuideToFVIndexGuide
 import lib.stackoverflowproc.labelBuilder as labelBuilder
 import random 
+import os.path
+import json
+
+"""
+export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
+"""
+
+def test_run():
+    data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
+
+    schema = {
+        'user': {
+            'idAtt': 'Id',
+            'featureAtts': [],
+            'linkAtts': {
+
+            }
+        },
+        'post': {
+            'idAtt': 'Id',
+            'featureAtts': [],
+            'linkAtts': {
+                'ParentId': 'post',
+                'OwnerUserId': 'user'
+            }
+        }, 
+        'comment': {
+            'idAtt': 'Id',
+            'featureAtts': [],
+            'linkAtts': {
+                'UserId': 'user',
+                'PostId': 'post'
+            }
+
+        }
+
+    }
+
+    reader = CorpusReader(True)
+
+    masterdict = reader.readCorpus(data_obj, schema) 
+
+    mdgraphproc = MasterdictGraphProcessor()
+
+    gcngraph, idGraph, indexGuide = mdgraphproc.buildGraphsFromMasterDict(masterdict, schema)
+
+    print("Built the adjacency graph!!")
+
+    # with CoreNLPClient(
+    #         annotators=['tokenize','ssplit','pos','lemma','ner'],
+    #         timeout=200000,
+    #         memory='16G', be_quiet=True) as client:
+
+
+    idFVMap = extractFeatureVectorsWithoutNER(recentPosts, recentUsers, recentComments)
+    print("Extracted all of the FVs!")
+    # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
+
+    
+    # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
+    print("splitting the dataset...")
+    train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_dataset(recentUsers, indexGuide, idFVMap, 0.8)
+    print("dataset split complete! Running GCN now:")
+    # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
+
+    # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
+    gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
+    gcnrunner.train_gcn()
+
+
+
+
+        
+
+
 
 def main():
     data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
@@ -40,7 +115,7 @@ def main():
     }
     reader = CorpusReader(True)
 
-    masterdict = reader.readCorpus(data_obj, schema) # TODO implement this whole setup out with the SO_ds and make it happennnn
+    masterdict = reader.readCorpus(data_obj, schema) 
 
     mdgraphproc = MasterdictGraphProcessor()
 
@@ -52,8 +127,14 @@ def main():
             annotators=['tokenize','ssplit','pos','lemma','ner'],
             timeout=200000,
             memory='16G', be_quiet=True) as client:
+        
 
-        idFVMap = extractFeaturevectors(recentPosts, recentUsers, recentComments, client)
+        if os.path.isfile("fvmap.json") and os.path.getsize("fvmap.json") > 0:
+            print("fvmap file already exists, rejoice! the training time will be much less this time")
+            idFVMap = json.load(open("fvmap.json","r"))
+        else:
+            idFVMap = extractFeaturevectors(recentPosts, recentUsers, recentComments, client)
+
         print("Extracted all of the FVs!")
         # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
 
@@ -66,6 +147,7 @@ def main():
 
         # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
         gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
+        gcnrunner.train_gcn()
 
         
 
@@ -165,21 +247,21 @@ def split_dataset(users, indexGuide, idFvGuide, splitsize):
 
     return train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels
     
-def build_train_all_indexes(train_user_ids, indexGuide):
-    train_all_indexes = []
+# def build_train_all_indexes(train_user_ids, indexGuide):
+#     train_all_indexes = []
 
-    for userid in train_user_ids:
-        userindex = indexGuide['user'][userid]
+#     for userid in train_user_ids:
+#         userindex = indexGuide['user'][userid]
 
-        train_all_indexes.append(userindex)
+#         train_all_indexes.append(userindex)
     
-    for nodetype in indexGuide:
-        if nodetype == 'user':
-            continue
-        else:
-            typeindexGuide = indexGuide[nodetype]
-            for nodeid in typeindexGuide:
-                train_all_indexes
+#     for nodetype in indexGuide:
+#         if nodetype == 'user':
+#             continue
+#         else:
+#             typeindexGuide = indexGuide[nodetype]
+#             for nodeid in typeindexGuide:
+#                 train_all_indexes
                 
     
 
@@ -195,5 +277,81 @@ def buildNonSheriffIdList(users, sheriffIds):
             
 
 if __name__ == '__main__':
-    # test_labelBuilder()
     main()
+    # test_run()
+
+
+"""
+TODO:
+
+Train GCN with SO stuff
+
+Test out inference to make sure it works 
+
+Create some different labels to classify the users/posts
+
+USE SEGMENTATION TO CLASSIFY USERS WITH A SUBSET OF THE TEST SET
+- this will allow me to show weaknesses on smaller datasets with short posts? with long posts? with X? with Y?
+
+- can use posts by n00b users vs experts
+
+- can use short vs long posts
+
+- can be able to breakdown the performance of GCN on different contexts and understand in what ways its strong vsv weak and why
+"""
+
+
+"""
+could have a core benchmark to extract users as we said for classification
+
+can then do an extra benchmark of adding domain specific regex (regex on java/python function or module names) to the features
+
+
+evaluate performance with F1 score
+
+Run analysis with different types of user groupings - see if the graph is better or worse of diff types of users
+
+Run analysis with different types of posts
+"""
+
+"""
+
+Stuart idea for regex-based stuff like URLs and namespaces:
+
+Go the regex as a preproc step before corenlp runm and replace all instances with a combination of chars of my own, 
+then if it is recognized add it as muy own feature later - might be a way to use stanza and avoid corenlp slowness
+
+"""
+
+
+"""
+
+Different Runs:
+
+Class for moderators 
+
+Class for expert/novice - multiclass by number of years
+
+Class for upvote/downvote
+"""
+
+"""
+Stuart usually does scripts, take in dataset/model name, test set to run everything for me
+"""
+
+"""
+Write up the report with placeholders to describe the experiments
+
+
+allow for tables with the different F1 scores - precision - recall - F1 - 
+Start writing ASAP
+Skeleton - bullet points fillout -  
+
+"""
+
+
+"""
+My demo might have a presentation with the problem, GCN architecture, run it, initial results, 
+
+IDEA: Show graphs and results connected with the data in a meaningful way while narrating and demostrating my understanding
+"""

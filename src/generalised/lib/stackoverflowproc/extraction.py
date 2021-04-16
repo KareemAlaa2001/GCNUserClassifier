@@ -233,11 +233,16 @@ toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
     # Files to filter by ids of users that have been included: Badges
     # no edits: Tags
 
+# OG recentposts
 recentPosts, postDict = extractPosts(isCreatedAfter2019, ET.parse("../../datasets/meta.stackoverflow.com/Posts.xml").getroot())
+
+# trying a smaller set, created 2020 or later
+# recentPosts, postDict = extractPosts((lambda post: int(post.get('CreationDate')[:4]) >= 2020), ET.parse("../../datasets/meta.stackoverflow.com/Posts.xml").getroot())
 print("extracted posts")
 
-
+# OG recentComments
 recentComments = extractComments(isCreatedAfter2019, ET.parse("../../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
+# recentComments = extractComments((lambda comment: int(comment.get('CreationDate')[:4]) >= 2020), ET.parse("../../datasets/meta.stackoverflow.com/Comments.xml").getroot(), postDict)
 print("extracted comments")
 
 # OLDrecentUsers, userDict = getRecentlyAccessedusers( ET.parse("../datasets/meta.stackoverflow.com/Users.xml").getroot())
@@ -248,9 +253,9 @@ recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 
-print(len(recentPosts))
-print(len(recentComments))
-print(len(recentUsers))
+# print(len(recentPosts))
+# print(len(recentComments))
+# print(len(recentUsers))
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")
