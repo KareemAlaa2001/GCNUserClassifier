@@ -13,6 +13,9 @@ import json
 export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
 """
 
+# TODO re-implement the dataset splitting functionality to belong to the generalized library rather than just the SO specific stuff
+# TODO consider replacing the whole GCN code lib with the DGL implementation
+
 def test_run():
     data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
 
