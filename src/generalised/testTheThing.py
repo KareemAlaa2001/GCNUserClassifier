@@ -16,6 +16,8 @@ export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/st
 # TODO re-implement the dataset splitting functionality to belong to the generalized library rather than just the SO specific stuff
 # TODO consider replacing the whole GCN code lib with the DGL implementation
 
+
+
 def test_run():
     data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
 
@@ -265,8 +267,8 @@ def split_dataset(users, indexGuide, idFvGuide, splitsize):
 #             typeindexGuide = indexGuide[nodetype]
 #             for nodeid in typeindexGuide:
 #                 train_all_indexes
-                
-    
+
+
 
 def buildNonSheriffIdList(users, sheriffIds):
     nonsheriffids = []

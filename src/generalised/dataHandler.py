@@ -105,11 +105,12 @@ class GCNRunner:
 
     def train_gcn(self):
         # gcntrain.test_func()
-        gcntrain.train_gcn(True, self)
+        features, support, y_test, test_mask, placeholders,sess,model = gcntrain.train_gcn(True, self)
+
+
 
     def save_model(self):
         pass
-
 
 
 def verify_test_indices(test_indices, adj_graph):
