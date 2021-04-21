@@ -103,7 +103,9 @@ class GCNRunner:
 
         
 
-    def train_gcn(self):
+    def train_gcn(self, learning_rate=0.01, 
+    num_epochs=200, hidden1=16, dropout=0.5,
+    weight_decay=5e-4, early_stopping=10):
         # gcntrain.test_func()
         features, support, y_test, test_mask, placeholders,sess,model = gcntrain.train_gcn(True, self)
 

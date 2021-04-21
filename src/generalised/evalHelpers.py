@@ -41,8 +41,10 @@ def calc_f1_score(truePos, falsePos, trueNeg, falseNeg):
 # 2*((precision*recall)/(precision+recall))
 def calc_f1_score_from_guesses(labels, guesses):
 
-    assert all(list(map(lambda x: len(x) == 2, labels))) and all(list(map(lambda x: len(x) == 2, guesses))), "This function only works with binary classification!!"
-    assert len(labels) == len(guesses), "Number of labels and number of guesses is not equal!!!"
+    if not (all(list(map(lambda x: len(x) == 2, labels))) and all(list(map(lambda x: len(x) == 2, guesses)))):
+        raise ValueError( "This function only works with binary classification!!")
+    if len(labels) != len(guesses):
+        raise ValueError( "Number of labels and number of guesses is not equal!!!")
     
     truePos = 0
     trueNeg = 0

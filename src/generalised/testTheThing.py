@@ -72,7 +72,7 @@ def test_run():
     
     # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
     print("splitting the dataset...")
-    train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_dataset(recentUsers, indexGuide, idFVMap, 0.8)
+    train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
     print("dataset split complete! Running GCN now:")
     # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
 
@@ -146,19 +146,23 @@ def main():
         
         # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
         print("splitting the dataset...")
-        train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_dataset(recentUsers, indexGuide, idFVMap, 0.8)
+        train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
         print("dataset split complete! Running GCN now:")
         # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
 
         # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
         gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
-        gcnrunner.train_gcn()
+        # gcnrunner.train_gcn(learning_rate=0.0001)
+        gcnrunner.train_gcn(learning_rate=0.001)
+        # gcnrunner.train_gcn(learning_rate=0.005)
+        # gcnrunner.train_gcn(learning_rate= 0.01)
+
 
         
 
 
 # takes in: indexFvMap, indexGuide, 
-def split_dataset(users, indexGuide, idFvGuide, splitsize):
+def split_so_dataset(users, indexGuide, idFvGuide, splitsize):
 
     # breakdown: 
     # need to get sheriff indexes, then split those into a training and test set
