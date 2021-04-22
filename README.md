@@ -74,4 +74,8 @@ There is also the intermediate "Masterdict" form, which is a dict containing typ
 
 # TODO Complete this
 
-
+# Possible Expansionsss:
+## Expand to more officially accommodate sql/sqlite dumps directly from a DB
+### includes supporting whatever objects come out of an sqlite DB
+### can also do the same for data coming out of a pandas dataframe
+### can expand data format output forms to also support the DGL (Deep Graph Library) running GCN and whatnot
