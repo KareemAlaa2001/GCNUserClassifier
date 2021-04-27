@@ -31,6 +31,16 @@ also need to hold on to the original indices of the fvs for the test_indices obj
 """
 If I'm just taking all of the FVs and all of the labels, I gotta split these to the needed formats as detailed above
 """
+
+class DSSplitter:
+    def __init__(self, fvs, labels, train_size):
+        self.fvs = fvs
+        self.labels = labels 
+        self.train_size = train_size
+
+    def split_dataset(self):
+        return split_dataset(self.fvs, self.labels, self.train_size)
+
 # can either assume dicts or lists for the passed in fvs and labels
 
 # either accepts {index: [fv]} or [[fv]], using index of [fv] for the index info
@@ -56,8 +66,8 @@ def split_dataset(fvs, labels, train_size):
 
     random.shuffle(labelled_indices)
 
-    train_indices = labelled_indices[:train_size*len(labelled_indices)]
-    test_indices = labelled_indices[train_size*len(labelled_indices):]
+    train_indices = labelled_indices[:int(train_size*len(labelled_indices))]
+    test_indices = labelled_indices[int(train_size*len(labelled_indices)):]
 
     ## now construct the sets 
     

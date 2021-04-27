@@ -4,6 +4,11 @@ from masterdictBuilder import buildMasterDict
 from masterdictGraphBuilder import MasterdictGraphProcessor
 from genhelpers import *
 
+
+class CorpusReaderFactory:
+    def getCorpusReader(self, schema_based):
+        return CorpusReader(schema_based)
+
 class CorpusReader:
 
     def __init__(self, schema_based):
