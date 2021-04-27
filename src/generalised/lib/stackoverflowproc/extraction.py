@@ -31,11 +31,11 @@ def getFilteredChildrenList(filterFunc, root):
 
 #   Gets list of relevant badges according to the list of users we are using
 #   changed to a hashed implementation. users is a dict with the ids as the keys
-def getRelevantBadges(badgesRoot, users):
+def getRelevantBadges(badgesRoot, userDict):
     relevant = []
 
     for child in badgesRoot:
-        if (isRelevantBadge(child.attrib, users)):
+        if (isRelevantBadge(child.attrib, userDict)):
             relevant.append(child.attrib)
 
     return relevant
@@ -249,7 +249,8 @@ print("extracted comments")
 # print("extracted users")
 
 # updated list of recent users to reflect those involved in comments and posts above rather than everyone that logged in 2019 or later
-recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.com/Users.xml").getroot(), constructRelevantUserIdDict(recentPosts, recentComments))
+relevantUserIdDict = constructRelevantUserIdDict(recentPosts, recentComments)
+recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.com/Users.xml").getroot(), relevantUserIdDict)
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 
@@ -270,8 +271,8 @@ print("extracted connected users")
 # print(len(recentUsers))
 # print(recentUsers[0].get('Id'), userDict.get(recentUsers[0].get('Id')))
 
-# recentBadges = getRelevantBadges(ET.parse("../datasets/meta.stackoverflow.com/Badges.xml").getroot(), userDict)
-# print("ye7")
+recentBadges = getRelevantBadges(ET.parse("../../datasets/meta.stackoverflow.com/Badges.xml").getroot(), relevantUserIdDict)
+print("Extracted the relevant badges")
 
 # recentTags = listChildrenAttrib(ET.parse("../datasets/meta.stackoverflow.com/Tags.xml").getroot())
 # print("ye8")

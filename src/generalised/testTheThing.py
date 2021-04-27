@@ -161,6 +161,16 @@ def main():
         
 
 
+
+
+
+
+
+
+
+
+
+
 # takes in: indexFvMap, indexGuide, 
 def split_so_dataset(users, indexGuide, idFvGuide, splitsize):
 
@@ -193,7 +203,7 @@ def split_so_dataset(users, indexGuide, idFvGuide, splitsize):
     random.shuffle(train_user_ids)
     random.shuffle(test_user_ids)
 
-    user_label_dict = labelBuilder.buildUserLabelsDict(users, indexGuide, sheriffIds)
+    user_label_dict = labelBuilder.buildSheriffBasedLabelsDict(users, indexGuide, sheriffIds)
     # Let's first do the train_set:
     train_fvs = []
     train_labels = []
