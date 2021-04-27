@@ -5,7 +5,6 @@ import html5lib
 # from html5_parser import parse
 # This module will have functions for the implementations of different types of labels. Some will be dependent on the data I've extracted, 
 # while others will be based on other stuff extracted from the website
-from selenium import webdriver
 
 
 # function to get the label of a user according to diamond mod status ( sheriff badgeholders )
@@ -36,8 +35,66 @@ def getSheriffBadgeUserIds(users):
 
     return idList
 
-        
-def buildUserLabelsDict(users, indexGuide, sheriffIds):
+
+def getAllLabelsUsingBadgeClass(users, badges, indexGuide):
+    userClasses = buildUserBadgeClassDict(badges)
+    userLabels = getBadgeClassBasedLabelDict(users, indexGuide, userClasses)
+    allLabels = buildAllLabelsDict(indexGuide, userLabels, 4)
+
+    return allLabels
+
+
+def getBadgeClassBasedLabelDict(users, indexGuide, userClasses):
+    labelDict = {}
+
+    for user in users:
+        userid = user.get('Id')
+        userIndex = indexGuide.get('user').get(userid)
+        userClass = userClasses.get(userid)
+
+        # using numerical indexing in userClasses, class 1 is bronze, class 2 is silver, class 3 is gold
+        if userClass is not None:
+            label = [0,0,0,0]
+            label[userClass] = 1
+            labelDict[userIndex] = label
+        else:
+            labelDict[userIndex] = [1,0,0,0] # put in label for 1,0,0,0 
+        # best way to do this is to iterate ofver badges first and get dicts for gold, silver and bronze users
+
+    return labelDict
+# 1 = Gold
+# 2 = Silver
+# 3 = Bronze
+# NOTE could have made this cleaner if there were more classes but oh well
+def buildUserBadgeClassDict(badges):
+    userClasses = {}
+
+    for badge in badges:
+        userid = badge.get('UserId')
+        badgeclass = badge.get('Class')
+
+        if badgeclass == '1': # gold 
+            userClasses[userid] = 3
+
+        elif badgeclass == '2': # silver
+            if userClasses.get(userid) == 3:
+                continue
+            else:
+                userClasses[userid] = 2
+
+        elif badgeclass == '3': # bronze
+            if userClasses.get(userid) == 3 or userClasses.get(userid) == 2:
+                continue
+            else:
+                userClasses[userid] = 1
+
+        else:
+            raise ValueError("Invalid badge class!")
+
+    return userClasses
+
+
+def buildSheriffBasedLabelsDict(users, indexGuide, sheriffIds):
     labelDict = {}
 
     for user in users:
@@ -46,10 +103,10 @@ def buildUserLabelsDict(users, indexGuide, sheriffIds):
         
         if userid in sheriffIds:
             # print("userid", userid, "was found to be a sheriff, adding +ve label for index", userIndex)
-            labelDict[userIndex] = [1,0]
+            labelDict[userIndex] = [0,1]
         
         else:
-            labelDict[userIndex] = [0,1]
+            labelDict[userIndex] = [1,0]
 
     return labelDict
 
@@ -68,21 +125,6 @@ def buildAllLabelsDict(indexGuide, userLabels, labelLength):
 
     return allLabels
 
-def buildUnlabbelledLabelsDict(indexGuide, labelledDict, labelLength):
-    allLabels = {}
-
-    for nodetype in indexGuide:
-        for nodeid in indexGuide[nodetype]:
-            nodeindex = indexGuide[nodetype][nodeid]
-
-            if labelledDict.get(nodeindex) is not None:
-                # allLabels[nodeindex] = labelledDict.get(nodeindex)
-                pass
-
-            else:
-                allLabels[nodeindex] = [0] * labelLength
-
-    return allLabels
 
 # take training set size between 0 and 1
 def splitDatasetLabels(realLabels, dummyLabels, training_set_size):
