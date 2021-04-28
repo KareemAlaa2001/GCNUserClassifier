@@ -87,13 +87,6 @@ def split_dataset(fvs, labels, train_size):
 
     return train_fvs, train_labels, test_fvs, test_labels, train_all_fvs, train_all_labels, test_indices
   
-    # # shuffle these badbois keep this to the end AFTER the splits
-    # shuffleindices = [i for i in range(len(fvs))]
-
-    # random.shuffle(shuffleindices)
-
-    # fvs = [fvs[i] for i in shuffleindices]
-    # labels = [labels[i] for i in shuffleindices]
 
 def shuffleListsTogether(A,B):
     if len(A) != len(B):

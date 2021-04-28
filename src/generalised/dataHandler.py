@@ -93,7 +93,15 @@ class GCNRunner:
 
         # FVHandler handles all of the verification on the data
         self.fvHandler = FVHandler(train_labelled,test_instances,train_labels, test_labels, all_train, all_train_labels)
+        print("Total number of nodes:", (len(test_instances) + len(all_train)))
+        print("Number of nodes in the test set (no fvhandler):", len(test_instances),",Number of test labels (no fvhandler):", len(test_labels))
+        print("Number of non-zero test labels (no fvhandler)",len(list(filter(lambda x: x != 0,np.argmax(test_labels,1)))))
+        print("Length of test_indices:", len(test_indices))
         fvh = self.fvHandler
+        
+        print("Number of nodes in the test set (AFTER fvhandler):", fvh.test_instances.shape[0],",Number of test labels (AFTER fvhandler):", len(fvh.test_labels))
+        print("Number of non-zero test labels (AFTER fvhandler)",len(list(filter(lambda x: x != 0,np.argmax(fvh.test_labels,1)))))
+        
         self.adj_graph = adj_graph
 
         if verify_test_indices(test_indices,adj_graph):
