@@ -75,11 +75,12 @@ There is also the intermediate "Masterdict" form, which is a dict containing typ
 # TODO Complete this
 
 # Possible Expansionsss:
-## Expand to more officially accommodate sql/sqlite dumps directly from a DB
+### Expand to more officially accommodate sql/sqlite dumps directly from a DB
 ### includes supporting whatever objects come out of an sqlite DB
 ### can also do the same for data coming out of a pandas dataframe
 ### can expand data format output forms to also support the DGL (Deep Graph Library) running GCN and whatnot
 ### can expand to allow for dataset updates to an existing DS
 ### can add stackoverflowNER to OGB, and I guess make them aware of the existence of the library ppl can use to create their own graph datasets from other formats????
+### at the very least expand the formats output by this lib to be usable by pytorch
 ### Can Experiment with word and sentence level embeddings by using more sophisticated methods like BERT models and whatnot
 ### Experiment with allowing multiple edge types and directed edges. THis could be a very useful addition to the library

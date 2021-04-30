@@ -1,5 +1,5 @@
 from corpusreader import CorpusReader, FileExtractor
-from lib.stackoverflowproc.extraction import recentUsers, recentPosts, recentComments
+from lib.stackoverflowproc.extraction import recentUsers, recentPosts, recentComments, recentBadges
 from lib.stackoverflowproc.fvBuilder import extractFeatureVectorsWithoutNER, extractFeaturevectors
 from stanza.server import CoreNLPClient
 from masterdictGraphBuilder import MasterdictGraphProcessor
@@ -8,6 +8,7 @@ import lib.stackoverflowproc.labelBuilder as labelBuilder
 import random 
 import os.path
 import json
+import dsSplitter
 
 """
 export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
@@ -141,12 +142,14 @@ def main():
             idFVMap = extractFeaturevectors(recentPosts, recentUsers, recentComments, client)
 
         print("Extracted all of the FVs!")
-        # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
+        indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
+        indexLabelMap = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
 
         
-        # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
         print("splitting the dataset...")
-        train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
+        train_fvs, train_labels, test_fvs, test_labels, train_all_fvs, train_all_labels, test_indices = dsSplitter.split_dataset(indexFvMap, indexLabelMap, 0.7)
+        
+        # train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
         print("dataset split complete! Running GCN now:")
         # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
 
@@ -159,8 +162,6 @@ def main():
 
 
         
-
-
 
 
 
