@@ -253,10 +253,10 @@ relevantUserIdDict = constructRelevantUserIdDict(recentPosts, recentComments)
 recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.com/Users.xml").getroot(), relevantUserIdDict)
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
-
-# print(len(recentPosts))
-# print(len(recentComments))
-# print(len(recentUsers))
+print("Number of user nodes", len(recentUsers))
+print("Length sum of posts, comments and users:",(len(recentPosts) + len(recentUsers) + len(recentComments)))
+print()
+print()
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")

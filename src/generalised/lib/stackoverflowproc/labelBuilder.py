@@ -39,14 +39,14 @@ def getSheriffBadgeUserIds(users):
 def getAllLabelsUsingBadgeClass(users, badges, indexGuide):
     userClasses = buildUserBadgeClassDict(badges)
     userLabels = getBadgeClassBasedLabelDict(users, indexGuide, userClasses)
+    print("Number of user labels", len(userLabels))
     allLabels = buildAllLabelsDict(indexGuide, userLabels, 4)
-
     return allLabels
 
 
 def getBadgeClassBasedLabelDict(users, indexGuide, userClasses):
     labelDict = {}
-
+    userclasscounts = [0,0,0,0]
     for user in users:
         userid = user.get('Id')
         userIndex = indexGuide.get('user').get(userid)
@@ -57,10 +57,12 @@ def getBadgeClassBasedLabelDict(users, indexGuide, userClasses):
             label = [0,0,0,0]
             label[userClass] = 1
             labelDict[userIndex] = label
+            userclasscounts[userClass] += 1
         else:
             labelDict[userIndex] = [1,0,0,0] # put in label for 1,0,0,0 
+            userclasscounts[0] += 1
         # best way to do this is to iterate ofver badges first and get dicts for gold, silver and bronze users
-
+    print("Numbers of [lurker, bronze, silver, gold] users: ", userclasscounts)
     return labelDict
 # 1 = Gold
 # 2 = Silver
@@ -83,7 +85,7 @@ def buildUserBadgeClassDict(badges):
                 userClasses[userid] = 2
 
         elif badgeclass == '3': # bronze
-            if userClasses.get(userid) == 3 or userClasses.get(userid) == 2:
+            if userClasses.get(userid) == 2 or userClasses.get(userid) == 3:
                 continue
             else:
                 userClasses[userid] = 1

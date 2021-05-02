@@ -4,45 +4,48 @@ from masterdictBuilder import buildMasterDict
 from masterdictGraphBuilder import MasterdictGraphProcessor
 from genhelpers import *
 
+class CorpusReaderFactory(ABC):
+    @abstractmethod
+    def getCorpusProcessor(self):
+        raise NotImplementedError()
 
-class CorpusReaderFactory:
-    def getCorpusReader(self, schema_based):
-        return CorpusReader(schema_based)
+class SchemaCorpusProcessorFactory(CorpusReaderFactory):
 
-class CorpusReader:
+    # def __init__(self, schema_based):
 
-    def __init__(self, schema_based):
+    #     if not isinstance(schema_based, bool):
+    #         raise Exception("Value passed into schema_based is not a boolean!")
 
-        if not isinstance(schema_based, bool):
-            raise Exception("Value passed into schema_based is not a boolean!")
+    #     self.schema_based = schema_based
 
-        self.schema_based = schema_based
+    def getCorpusProcessor(self):
+        return SchemaBasedCorpusProcessor()
 
-    def readCorpus(self, data, schema=None, toptypes=None, proc=None):
-        if self.schema_based:
-            if schema is None:
-                raise Exception("This CorpusReader object was set to be schema based, but no schema was passed in!")
+    # def readCorpus(self, data, schema=None, toptypes=None, proc=None):
+    #     if self.schema_based:
+    #         if schema is None:
+    #             raise Exception("This CorpusReader object was set to be schema based, but no schema was passed in!")
             
-            proc = SchemaBasedCorpusProcessor(data, toptypes, schema)
+    #         proc = SchemaBasedCorpusProcessor(data, toptypes, schema)
 
-            self.masterdict = proc.readCorpus()
+    #         self.masterdict = proc.readCorpus()
 
-            return self.masterdict
+    #         return self.masterdict
         
-        else:
-            if proc is None:
-                raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but none was passed in!")
+    #     else:
+    #         if proc is None:
+    #             raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but none was passed in!")
             
-            if not isinstance(proc, AbstractCorpusProcessor):
-                raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but the one passed in was not an AbstractCorpusProcessor subclass!")
+    #         if not isinstance(proc, AbstractCorpusProcessor):
+    #             raise Exception("This CorpusReader object was set to be non-schema based and thus requires a corpusprocessor instance, but the one passed in was not an AbstractCorpusProcessor subclass!")
 
-            result = proc.readCorpus()
+    #         result = proc.readCorpus()
 
-            if verifyReadCorpusResultFormat(result):
-                self.intermediategraph = result
-                return result
-            else:
-                raise Exception("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
+    #         if verifyReadCorpusResultFormat(result):
+    #             self.intermediategraph = result
+    #             return result
+    #         else:
+    #             raise Exception("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
 
 # TODO handle direct output of GCN Graph from CorpusReader
 # NOTE possible approach: move all verification to the constructor, then have methods to either retreive the masterdict, gcngraph or all of the gcngraph assoc stuff
@@ -52,17 +55,12 @@ class AbstractCorpusProcessor(ABC):
 
     @abstractmethod
     def readCorpus(self):
-        pass
+        raise NotImplementedError()
 
 class SchemaBasedCorpusProcessor(AbstractCorpusProcessor):
-    def __init__(self, data, toptypes, schema):
-        self.schema = schema
-        self.data = data
-        self.toptypes = toptypes
 
-
-    def readCorpus(self):
-        return buildMasterDict(self.data, self.schema, self.toptypes)
+    def readCorpus(self, data,  schema, toptypes=None):
+        return buildMasterDict(data, schema, toptypes)
 
 
 # TODO if time exists (prob not), can make this more sophisticated

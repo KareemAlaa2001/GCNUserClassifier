@@ -1,4 +1,4 @@
-from corpusreader import CorpusReader, FileExtractor
+from corpusreader import SchemaCorpusProcessorFactory, FileExtractor
 from lib.stackoverflowproc.extraction import recentUsers, recentPosts, recentComments, recentBadges
 from lib.stackoverflowproc.fvBuilder import extractFeatureVectorsWithoutNER, extractFeaturevectors
 from stanza.server import CoreNLPClient
@@ -50,7 +50,7 @@ def test_run():
 
     }
 
-    reader = CorpusReader(True)
+    reader = SchemaCorpusProcessorFactory(True)
 
     masterdict = reader.readCorpus(data_obj, schema) 
 
@@ -119,9 +119,11 @@ def main():
 
 
     }
-    reader = CorpusReader(True)
+    procFactory = SchemaCorpusProcessorFactory()
+    
+    corpProc = procFactory.getCorpusProcessor()
 
-    masterdict = reader.readCorpus(data_obj, schema) 
+    masterdict = corpProc.readCorpus(data_obj, schema) 
 
     mdgraphproc = MasterdictGraphProcessor()
 

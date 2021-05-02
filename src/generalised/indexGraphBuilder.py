@@ -1,16 +1,26 @@
 import masterdictGraphBuilder
 import genhelpers
 import random
+from corpusreader import verifyReadCorpusResultFormat
 
 class GraphProcessor:
     def __init__(self, build_transitive):
         self.transitive = build_transitive
 
     def processMultiTypeGraph(self, graph):
-        return processAdjacenciesMultipleTypes(graph, self.transitive) # returns indexGCNGraph, idGraph, indexGuide
+
+        if verifyReadCorpusResultFormat(graph):
+            return processAdjacenciesMultipleTypes(graph, self.transitive) # returns indexGCNGraph, idGraph, indexGuide
+        else:
+            raise ValueError("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
+        
 
     def processIndexedGraph(self, graph):
-        return processAdjacenciesIndexed(graph, self.transitive)
+        if verifyReadCorpusResultFormat(graph):
+            return processAdjacenciesIndexed(graph, self.transitive) # returns indexGCNGraph, idGraph, indexGuide
+        else:
+            raise ValueError("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
+        
 
 
 # takes in a graph in the format {type:{nodeid: {neighbourtype: [neighbourids]}}}
