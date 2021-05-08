@@ -95,6 +95,7 @@ def buildGCNGraphFromMasterdict(masterdict, schema):
 def buildShuffledIndexGuide(masterdict, schema):
     # list of indexes of length - number of entries in the masterdict
     indexes = [i for i in range(len(shuffleData(masterdict)))]
+    random.seed(123)
     random.shuffle(indexes)
 
     indexGuide = initEmptyTypesDict(schema)
@@ -134,7 +135,7 @@ def shuffleData(masterdict):
 # then looping over that graph to put the corresponding second sides to complete the graph
 def buildIdNeighbourhoodDict(masterdict, schema):
     idNeighbourhoods = initEmptyTypesDict(schema)
-
+    
     for nodetype in schema:
         for node in masterdict[nodetype]:
             neighbours = constructNeighbours(node, nodetype, schema)
@@ -143,6 +144,19 @@ def buildIdNeighbourhoodDict(masterdict, schema):
     
     idNeighbourhoods = buildLikewiseRelationships(idNeighbourhoods)
 
+    commentneighbourhoods = idNeighbourhoods['comment']
+    numcommentlinks = 0
+    commentneighbourhoodprinted = False
+    for commentid in commentneighbourhoods:
+        
+        for nodetype in commentneighbourhoods[commentid]:
+            numcommentlinks += len(commentneighbourhoods[commentid][nodetype])
+
+        if not commentneighbourhoodprinted:
+            print(commentneighbourhoods[commentid])
+            commentneighbourhoodprinted = True
+    
+    print("Number of comment links:",numcommentlinks)
     return idNeighbourhoods
 
 # takes a graph with one-sided relationships and makes them two-sided
@@ -153,7 +167,9 @@ def buildLikewiseRelationships(neighbourhoods):
             nodeneighbourhood = neighbourhoods[nodetype][nodeid]
             for neighbourtype in nodeneighbourhood:
                 for neighbourid in nodeneighbourhood[neighbourtype]:
-                    neighboursofneighbour = neighbourhoods[neighbourtype][neighbourid][nodetype]
+                    intermediate1 = neighbourhoods[neighbourtype]
+                    intermediate2 = intermediate1[neighbourid]
+                    neighboursofneighbour = intermediate2[nodetype]
                     if nodeid not in neighboursofneighbour:
                         neighboursofneighbour.append(nodeid)        
     

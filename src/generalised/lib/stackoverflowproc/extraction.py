@@ -17,6 +17,23 @@ def isCreatedAfterYear(post, cutoffYear):
 def isCreatedAfter2019(post):
     return isCreatedAfterYear(post, 2019)
 
+def addPostLinksToPosts(posts, postlinks):
+    # first build dict of links
+    linksDict = {}
+
+    for link in postlinks:
+        postid = link.get('PostId')
+        relatedpostid = link.get('RelatedPostId')
+        
+        linksDict[postid] = relatedpostid
+        
+    for post in posts:
+        postid = post.get('Id')
+
+        if linksDict.get(postid) is not None:
+            post['RelatedPostId'] = linksDict.get(postid)
+
+    return posts
 
 
 # builds a list of dicts of children attributes based on satisfaction of the filtering function
@@ -195,6 +212,7 @@ def extractPosts(filterfunc,root):
     return viewsAdded, pdict
 
 
+
 '''
 COMMENTS
 FUNCTIONS FOR EXTRACTING AND PREPROCESSING COMMENT DICTIONARIES
@@ -226,6 +244,20 @@ def extractComments(filteringfunc, commentsroot, postsDict):
     commentsList = pre_preprocessCommentsList(initialCommentsList, postsDict)
     return commentsList
 
+def removeIrrelevantPostlinks(links, postDict):
+    relevantLinks = []
+
+    for link in links:
+        if (postDict.get(link.get('PostId')) is not None) and (postDict.get(link.get('RelatedPostId')) is not None):
+            relevantLinks.append(link)
+
+    return relevantLinks
+
+def extractPostLinks(filteringfunc, root, postsDict):
+    initialList = getFilteredChildrenList(filteringfunc, root)
+    postlinks = removeIrrelevantPostlinks(initialList, postsDict)
+    return postlinks
+
 metaFolder = "../datasets/meta.stackoverflow.com/"
 toTruncate = ["Posts", "Comments", "PostHistory", "Votes", "PostLinks"]
 # Files to truncate by CreationDate: Posts, Comments, PostHistory, Votes, PostLinks
@@ -254,9 +286,10 @@ recentUsers = extractConnectedUsers(ET.parse("../../datasets/meta.stackoverflow.
 print("extracted connected users")
 # extract a list of all the instances of the specified attribute in the list of dicts
 print("Number of user nodes", len(recentUsers))
+print("Number of comment nodes", len(recentComments))
+print("Number of post nodes", len(recentPosts))
 print("Length sum of posts, comments and users:",(len(recentPosts) + len(recentUsers) + len(recentComments)))
-print()
-print()
+
 
 # recentPostHistory = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostHistory.xml").getroot())
 # print("ye3")
@@ -264,10 +297,10 @@ print()
 # recentVotes = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/Votes.xml").getroot())
 # print("ye4")
 
-# recentPostLinks = filter2019Later(ET.parse("../datasets/meta.stackoverflow.com/PostLinks.xml").getroot())
-# print("ye5")
+recentPostLinks = extractPostLinks(isCreatedAfter2019,ET.parse("../../datasets/meta.stackoverflow.com/PostLinks.xml").getroot(),postDict)
+print("Extracted post links")
 
-
+recentPosts = addPostLinksToPosts(recentPosts, recentPostLinks)
 # print(len(recentUsers))
 # print(recentUsers[0].get('Id'), userDict.get(recentUsers[0].get('Id')))
 

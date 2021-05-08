@@ -63,7 +63,8 @@ def split_dataset(fvs, labels, train_size):
     labelled_indices, unlabelled_indices = extractLabelledUnlabelledIndices(labels)
 
     ## need to now split the labelled dataset into training and testing sets using the indices
-
+    ## CHECK IF I NEED TO REMOVE THE SHUFFLING HERE TO MAKE THIS WORK LMAO
+    random.seed(123)
     random.shuffle(labelled_indices)
 
     train_indices = labelled_indices[:int(train_size*len(labelled_indices))]
@@ -81,25 +82,25 @@ def split_dataset(fvs, labels, train_size):
 
     # shuffleeee
 
-    train_all_fvs, train_all_labels = shuffleListsTogether(train_all_fvs, train_all_labels)
-    train_fvs, train_labels = shuffleListsTogether(train_fvs, train_labels)
-    test_fvs, test_labels = shuffleListsTogether(test_fvs, test_labels)
+    # train_all_fvs, train_all_labels = shuffleListsTogether(train_all_fvs, train_all_labels)
+    # train_fvs, train_labels = shuffleListsTogether(train_fvs, train_labels)
+    # test_fvs, test_labels = shuffleListsTogether(test_fvs, test_labels)
 
     return train_fvs, train_labels, test_fvs, test_labels, train_all_fvs, train_all_labels, test_indices
   
 
-def shuffleListsTogether(A,B):
-    if len(A) != len(B):
-        raise ValueError("A and B are not of the same length!")
+# def shuffleListsTogether(A,B):
+#     if len(A) != len(B):
+#         raise ValueError("A and B are not of the same length!")
 
-    shuffleindices = [i for i in range(len(A))]
+#     shuffleindices = [i for i in range(len(A))]
+#     random.seed(123)
+#     random.shuffle(shuffleindices)
 
-    random.shuffle(shuffleindices)
+#     A = [A[i] for i in shuffleindices]
+#     B = [B[i] for i in shuffleindices]
 
-    A = [A[i] for i in shuffleindices]
-    B = [B[i] for i in shuffleindices]
-
-    return A, B
+#     return A, B
 
 def constructSetFromIndices(fvs, labels, indices):
     set_fvs = []

@@ -1,7 +1,7 @@
 import masterdictGraphBuilder
 import genhelpers
 import random
-from corpusreader import verifyReadCorpusResultFormat
+from corpusreader import *
 
 class GraphProcessor:
     def __init__(self, build_transitive):
@@ -14,7 +14,6 @@ class GraphProcessor:
         else:
             raise ValueError("The result of the corpus reading in the processor passed in does not fit the format accepted by any of the graphbuilder module!")
         
-
     def processIndexedGraph(self, graph):
         if verifyReadCorpusResultFormat(graph):
             return processAdjacenciesIndexed(graph, self.transitive) # returns indexGCNGraph, idGraph, indexGuide
@@ -86,6 +85,7 @@ def buildIndexGuide(graph, shuffle=False):
     indexes = [i for i in range(len(masterdictGraphBuilder.shuffleData(graph)))]
 
     if shuffle:
+        random.seed(123)
         random.shuffle(indexes)
 
     indexGuide = genhelpers.initEmptyTypesDict(graph)

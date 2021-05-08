@@ -84,3 +84,5 @@ There is also the intermediate "Masterdict" form, which is a dict containing typ
 ### at the very least expand the formats output by this lib to be usable by pytorch
 ### Can Experiment with word and sentence level embeddings by using more sophisticated methods like BERT models and whatnot
 ### Experiment with allowing multiple edge types and directed edges. THis could be a very useful addition to the library
+### Could also possibly integrate with networkx
+#### can expand to accommodate datasets with mukltiple link types as well as directed graphs (this muifght already be a point lmao)

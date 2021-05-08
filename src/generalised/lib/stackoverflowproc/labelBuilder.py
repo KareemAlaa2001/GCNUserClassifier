@@ -1,7 +1,6 @@
 # from lib.stackoverflowproc.extraction import recentComments, recentPosts, recentUsers
 from os import O_NOFOLLOW
 import xml.etree.ElementTree as ET
-import html5lib
 # from html5_parser import parse
 # This module will have functions for the implementations of different types of labels. Some will be dependent on the data I've extracted, 
 # while others will be based on other stuff extracted from the website
@@ -9,40 +8,125 @@ import html5lib
 
 # function to get the label of a user according to diamond mod status ( sheriff badgeholders )
 
+"""
+GENERAL PURPOSE
+"""
 
-def getSheriffBadgeUserIds(users):
-    sheriffNames = getSheriffBadgeDisplayNames()
-    namesToIds = {}
-    for user in users:
-        userDisName = user.get('DisplayName')
+def buildAllLabelsDict(indexGuide, userLabels, labelLength):
+    allLabels = {}
 
-        if userDisName in sheriffNames:
-            if namesToIds.get(userDisName) is not None:
-                idlist = namesToIds.get(userDisName)
-                idlist.append(user.get('Id'))
-                namesToIds[userDisName] = idlist
+    for nodetype in indexGuide:
+        for nodeid in indexGuide[nodetype]:
+            nodeindex = indexGuide[nodetype][nodeid]
+
+            if userLabels.get(nodeindex) is not None:
+                allLabels[nodeindex] = userLabels.get(nodeindex)
 
             else:
-                namesToIds[userDisName] = [user.get('Id')]
+                allLabels[nodeindex] = [0 for i in range(labelLength)]
 
-    namesToIds["Kev"] = ['419']
-    namesToIds["Max"] = ['189572']
+    return allLabels
 
-    idList = []
+def getAllUserIndexesWithBadge(badgename, badges, indexGuide):
+    userIndexes = {}
 
-    for name in namesToIds:
-        idList.append(namesToIds.get(name)[0])
+    for badge in badges:
+        if badge.get('Name') == badgename:
+            userid = badge.get('UserId')
+            userindex = indexGuide.get('user').get(userid)
+            userIndexes[userindex] = badgename
 
-    return idList
+    return userIndexes
 
+"""
+NICE POST/ANSWER BASED LABELS
+"""
+
+
+##  MULTICLASS
+#   Label definition:
+#   [0,0,0,1] -> Has both nice question and a nice answer badges
+#   [0,0,1,0] -> Has a nice answer but not a nice question
+#   [0,1,0,0] -> Has a nice question but not a nice answer
+#   [1,0,0,0] -> Neither has a nice question nor a nice answer
+
+def getAllLabelsUsingNiceQuestionAnswerMulticlass(users, badges, indexGuide):
+    niceQuestionUsers = getAllUserIndexesWithBadge("Nice Question", badges, indexGuide)
+    niceAnswerUsers = getAllUserIndexesWithBadge("Nice Answer", badges, indexGuide)
+    userLabels = getMulticlassLabelsFromNiceQA(niceQuestionUsers, niceAnswerUsers, users, indexGuide)
+    print("Label distribution for users in Multiclass [noNicePosts, NiceQuestionOnly, NiceAnswerOnly, Both]:",getLabelDistribution(userLabels, 4))
+    allLabels = buildAllLabelsDict(indexGuide, userLabels, 4)
+    return allLabels, userLabels
+    
+    
+
+
+def getMulticlassLabelsFromNiceQA(niceQuestionUsers, niceAnswerUsers, users, indexGuide):
+    both = (set(niceAnswerUsers.keys()) & set( niceQuestionUsers.keys()))
+    userLabels = {}
+
+    for user in users:
+        userindex = indexGuide['user'][user.get('Id')]
+        
+        if userindex in both:
+            userLabels[userindex] = [0,0,0,1]
+
+        elif userindex in niceAnswerUsers:
+            userLabels[userindex] = [0,0,1,0]
+
+        elif userindex in niceQuestionUsers:
+            userLabels[userindex] = [0,1,0,0]
+
+        else:
+            userLabels[userindex] = [1,0,0,0]
+
+    return userLabels
+
+
+##  BINARY
+#   Label definition
+#   Nice Post (Q/A) -> [0,1]
+#   No Nice Post -> [1,0]
+
+def getAllLabelsUsingNiceQuestionAnswerBinary(users, badges, indexGuide):
+    niceQuestionUsers = getAllUserIndexesWithBadge("Nice Question", badges, indexGuide)
+    niceAnswerUsers = getAllUserIndexesWithBadge("Nice Answer", badges, indexGuide)
+    userLabels = getBinaryLabelsFromNiceQA(niceQuestionUsers, niceAnswerUsers, users, indexGuide)
+    print("Label distribution for users in binary [noniceposts, nicepost]:",getLabelDistribution(userLabels, 2))
+    allLabels = buildAllLabelsDict(indexGuide, userLabels, 2)
+    return allLabels, userLabels
+
+def getBinaryLabelsFromNiceQA(niceQuestionUsers, niceAnswerUsers, users, indexGuide):
+    either = niceAnswerUsers.copy()
+    either.update(niceQuestionUsers)
+    userLabels = {}
+
+    for user in users:
+        userindex = indexGuide['user'][user.get('Id')]
+
+        if userindex in either:
+            userLabels[userindex] = [0,1]
+        
+        else:
+            userLabels[userindex] = [1,0]
+
+    return userLabels
+            
+
+"""
+BADGE CLASS LABELS
+"""
+def getUserLabelsUsingBadgeClass(users,badges, indexGuide):
+    userClasses = buildUserBadgeClassDict(badges)
+    userLabels = getBadgeClassBasedLabelDict(users, indexGuide, userClasses)
+    return userLabels
 
 def getAllLabelsUsingBadgeClass(users, badges, indexGuide):
     userClasses = buildUserBadgeClassDict(badges)
     userLabels = getBadgeClassBasedLabelDict(users, indexGuide, userClasses)
     print("Number of user labels", len(userLabels))
     allLabels = buildAllLabelsDict(indexGuide, userLabels, 4)
-    return allLabels
-
+    return allLabels, userLabels
 
 def getBadgeClassBasedLabelDict(users, indexGuide, userClasses):
     labelDict = {}
@@ -74,11 +158,13 @@ def buildUserBadgeClassDict(badges):
     for badge in badges:
         userid = badge.get('UserId')
         badgeclass = badge.get('Class')
-
+        badgename = badge.get('Name')
         if badgeclass == '1': # gold 
             userClasses[userid] = 3
 
-        elif badgeclass == '2': # silver
+        elif badgeclass == '2': # silver, not yearling since yearling GREATLY skews results
+            if badgename == "Yearling":
+                continue
             if userClasses.get(userid) == 3:
                 continue
             else:
@@ -96,6 +182,10 @@ def buildUserBadgeClassDict(badges):
     return userClasses
 
 
+"""
+SHERIFF BASED LABELS
+"""
+
 def buildSheriffBasedLabelsDict(users, indexGuide, sheriffIds):
     labelDict = {}
 
@@ -112,20 +202,59 @@ def buildSheriffBasedLabelsDict(users, indexGuide, sheriffIds):
 
     return labelDict
 
-def buildAllLabelsDict(indexGuide, userLabels, labelLength):
-    allLabels = {}
 
-    for nodetype in indexGuide:
-        for nodeid in indexGuide[nodetype]:
-            nodeindex = indexGuide[nodetype][nodeid]
+def getSheriffBadgeUserIds(users):
+    sheriffNames = getSheriffBadgeDisplayNames()
+    namesToIds = {}
+    for user in users:
+        userDisName = user.get('DisplayName')
 
-            if userLabels.get(nodeindex) is not None:
-                allLabels[nodeindex] = userLabels.get(nodeindex)
+        if userDisName in sheriffNames:
+            if namesToIds.get(userDisName) is not None:
+                idlist = namesToIds.get(userDisName)
+                idlist.append(user.get('Id'))
+                namesToIds[userDisName] = idlist
 
             else:
-                allLabels[nodeindex] = [0] * labelLength
+                namesToIds[userDisName] = [user.get('Id')]
 
-    return allLabels
+    namesToIds["Kev"] = ['419']
+    namesToIds["Max"] = ['189572']
+
+    idList = []
+
+    for name in namesToIds:
+        idList.append(namesToIds.get(name)[0])
+
+    return idList
+
+def getSheriffBadgeDisplayNames():
+    sheriffDisplayNames = ["Journeyman Geek", "Yaakov Ellis", "Mendy Rodriguez", "Ham Vocke",
+    "Jane Willborn", "Tinkeringbell", "Laura Campbell", "Sara Chipps", "Aaron Shekey", "Ben Kelly", "g3rv4", "Vasudha Swaminathan", "kristinalustig", 
+    "Horia Coman", "Ted Goas", "Benjamin Hodgson", "Des", "Tom Floyd", "Nicolas Chabanovsky", "Kurtis Beavers",
+    "Donna", "Alex Miller", "Dean Ward", "Alex Warren", "Jon Chan", "Brian Nickel", "Tom Limoncelli", "Juice", "Hynes", "Kasra Rahjerdi", "ChrisF", "Gordon",
+    "Flexo", "Andrew Barber", "Max", "Steven Murawski", "ThiefMaster", "Brad Larson", "George Stocker", "jjnguy", "Adam Lear", "casperOne", "NullUserException อ_อ", "BoltClock's a Unicorn",
+    "Kev", "Lasse V. Karlsen", "Alex Miller", "Nick Craver", "random", "Sampson", "Ivo Flipse", "mmyers", "Gumbo"]
+    return sheriffDisplayNames
+   
+
+
+
+"""
+MISC
+"""
+
+def getLabelDistribution(userLabels, num_classes):
+    labelRates = [0 for i in range(num_classes)]
+
+    for userindex in userLabels:
+        label = userLabels[userindex]
+        labelclass = label.index(1)
+
+        labelRates[labelclass] += 1
+
+    return labelRates
+
 
 
 # take training set size between 0 and 1
@@ -156,14 +285,3 @@ def splitDatasetLabels(realLabels, dummyLabels, training_set_size):
     labels_train_all = {**dict(realLabelsTraining), **dict(dummyLabelsTraining)}
 
     return labels_train, labels_train_all, labels_test
-
-
-def getSheriffBadgeDisplayNames():
-    sheriffDisplayNames = ["Journeyman Geek", "Yaakov Ellis", "Mendy Rodriguez", "Ham Vocke",
-    "Jane Willborn", "Tinkeringbell", "Laura Campbell", "Sara Chipps", "Aaron Shekey", "Ben Kelly", "g3rv4", "Vasudha Swaminathan", "kristinalustig", 
-    "Horia Coman", "Ted Goas", "Benjamin Hodgson", "Des", "Tom Floyd", "Nicolas Chabanovsky", "Kurtis Beavers",
-    "Donna", "Alex Miller", "Dean Ward", "Alex Warren", "Jon Chan", "Brian Nickel", "Tom Limoncelli", "Juice", "Hynes", "Kasra Rahjerdi", "ChrisF", "Gordon",
-    "Flexo", "Andrew Barber", "Max", "Steven Murawski", "ThiefMaster", "Brad Larson", "George Stocker", "jjnguy", "Adam Lear", "casperOne", "NullUserException อ_อ", "BoltClock's a Unicorn",
-    "Kev", "Lasse V. Karlsen", "Alex Miller", "Nick Craver", "random", "Sampson", "Ivo Flipse", "mmyers", "Gumbo"]
-    return sheriffDisplayNames
-   

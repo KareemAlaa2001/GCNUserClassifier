@@ -21,6 +21,7 @@ def buildGCNGraph(posts, users, comments):
 def shuffleData(posts, users, comments):
     
     masterList = posts + users + comments
+    random.seed(123)
     random.shuffle(masterList)
 
     return masterList

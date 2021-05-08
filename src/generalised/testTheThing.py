@@ -9,6 +9,9 @@ import random
 import os.path
 import json
 import dsSplitter
+import numpy as np
+import keras
+import tensorflow as tf
 
 """
 export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/stanford-corenlp-4.2.0
@@ -19,67 +22,67 @@ export CORENLP_HOME=/Users/kareem/UniStuff/3rd\ Year/3rdYearProject/Libraries/st
 
 
 
-def test_run():
-    data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
+# def test_run():
+#     data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
 
-    schema = {
-        'user': {
-            'idAtt': 'Id',
-            'featureAtts': [],
-            'linkAtts': {
+#     schema = {
+#         'user': {
+#             'idAtt': 'Id',
+#             'featureAtts': [],
+#             'linkAtts': {
 
-            }
-        },
-        'post': {
-            'idAtt': 'Id',
-            'featureAtts': [],
-            'linkAtts': {
-                'ParentId': 'post',
-                'OwnerUserId': 'user'
-            }
-        }, 
-        'comment': {
-            'idAtt': 'Id',
-            'featureAtts': [],
-            'linkAtts': {
-                'UserId': 'user',
-                'PostId': 'post'
-            }
+#             }
+#         },
+#         'post': {
+#             'idAtt': 'Id',
+#             'featureAtts': [],
+#             'linkAtts': {
+#                 'ParentId': 'post',
+#                 'OwnerUserId': 'user'
+#             }
+#         }, 
+#         'comment': {
+#             'idAtt': 'Id',
+#             'featureAtts': [],
+#             'linkAtts': {
+#                 'UserId': 'user',
+#                 'PostId': 'post'
+#             }
 
-        }
+#         }
 
-    }
+#     }
 
-    reader = SchemaCorpusProcessorFactory(True)
+#     reader = SchemaCorpusProcessorFactory(True)
 
-    masterdict = reader.readCorpus(data_obj, schema) 
+#     masterdict = reader.readCorpus(data_obj, schema) 
 
-    mdgraphproc = MasterdictGraphProcessor()
+#     mdgraphproc = MasterdictGraphProcessor()
 
-    gcngraph, idGraph, indexGuide = mdgraphproc.buildGraphsFromMasterDict(masterdict, schema)
+#     gcngraph, idGraph, indexGuide = mdgraphproc.buildGraphsFromMasterDict(masterdict, schema)
 
-    print("Built the adjacency graph!!")
+#     print("Built the adjacency graph!!")
 
-    # with CoreNLPClient(
-    #         annotators=['tokenize','ssplit','pos','lemma','ner'],
-    #         timeout=200000,
-    #         memory='16G', be_quiet=True) as client:
+#     # with CoreNLPClient(
+#     #         annotators=['tokenize','ssplit','pos','lemma','ner'],
+#     #         timeout=200000,
+#     #         memory='16G', be_quiet=True) as client:
 
 
-    idFVMap = extractFeatureVectorsWithoutNER(recentPosts, recentUsers, recentComments)
-    print("Extracted all of the FVs!")
-    # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
+#     idFVMap = extractFeatureVectorsWithoutNER(recentPosts, recentUsers, recentComments)
+#     print("Extracted all of the FVs!")
+#     # indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
 
     
-    # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
-    print("splitting the dataset...")
-    train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
-    print("dataset split complete! Running GCN now:")
-    # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
+#     # dummyLabels = labelBuilder.buildUnlabbelledLabelsDict(indexGuide, userLabels, 2)
+#     print("splitting the dataset...")
+#     train_fvs, train_labels, test_fvs, test_labels, test_indices, train_all_fvs, train_all_labels = split_so_dataset(recentUsers, indexGuide, idFVMap, 0.8)
+#     print("dataset split complete! Running GCN now:")
+#     # allLabels = labelBuilder.buildAllLabelsDict(indexGuide, userLabels, 2)
 
-    # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
-    gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
-    gcnrunner.train_gcn()
+#     # labels_train, labels_train_all, labels_test = labelBuilder.splitDatasetLabels(userLabels, dummyLabels, 0.7)
+#     gcnrunner = GCNRunner(train_fvs, test_fvs, train_labels, test_labels, train_all_fvs, train_all_labels, test_indices, gcngraph)
+#     gcnrunner.train_gcn()
 
 
 
@@ -104,7 +107,8 @@ def main():
             'featureAtts': [],
             'linkAtts': {
                 'ParentId': 'post',
-                'OwnerUserId': 'user'
+                'OwnerUserId': 'user',
+                'RelatedPostId': 'post'
             }
         }, 
         'comment': {
@@ -120,7 +124,7 @@ def main():
 
     }
     procFactory = SchemaCorpusProcessorFactory()
-    
+
     corpProc = procFactory.getCorpusProcessor()
 
     masterdict = corpProc.readCorpus(data_obj, schema) 
@@ -129,6 +133,13 @@ def main():
 
     gcngraph, idGraph, indexGuide = mdgraphproc.buildGraphsFromMasterDict(masterdict, schema)
 
+    numLinks = 0
+    for index in gcngraph:
+        numLinks += len(gcngraph[index])
+
+    numLinks /= 2
+
+    print("Number of edges in the graph:",numLinks)
     print("Built the adjacency graph!!")
 
     with CoreNLPClient(
@@ -168,8 +179,21 @@ def main():
 
 
 
+def testsomestuff():
+    dummypreds = np.array([[0.02,0.28,0.2,0.5],[0.02,0.18,0.6,0.2],[0.9,0.1,0,0],[1,0,0,0]])
+    dummylabels = np.array([[1,0,0,0],[0,0,1,0],[1,0,0,0],[1,0,0,0]])
+    dummypredsreduced = np.argmax(dummypreds,1)
+    dummylabelsreduced = np.argmax(dummylabels,1)
+    preclayers = []
+    # tf.enable_eager_execution()
+    for i in range(4):
+        preclayers.append(keras.metrics.Precision(
+    thresholds=None, top_k=None, class_id=i, name=None, dtype=None
+    ))
 
-
+    for layer in preclayers:
+        layer.update_state(dummylabelsreduced, dummypredsreduced)
+        print(float(layer.result()))
 
 
 
@@ -202,7 +226,7 @@ def split_so_dataset(users, indexGuide, idFvGuide, splitsize):
     train_user_ids = train_sheriff_ids + train_nonsheriff_ids
 
     test_user_ids = test_sheriff_ids + test_nonsheriff_ids
-
+    random.seed(123)
     random.shuffle(train_user_ids)
     random.shuffle(test_user_ids)
 
@@ -299,6 +323,7 @@ def buildNonSheriffIdList(users, sheriffIds):
             
 
 if __name__ == '__main__':
+    # testsomestuff()
     main()
     # test_run()
 

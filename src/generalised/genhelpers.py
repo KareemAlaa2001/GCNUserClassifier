@@ -40,6 +40,12 @@ def allkeyssatisfytype(data, type):
 def allmemberssatisfyanytypes(data, types):
     return all(list(map(lambda member: any(list(map(lambda t: isinstance(member,t), types))),data)))
 
+def convertDictSetToListSet(set):
+    listset = [[] for i in range(len(set))]
+    for index in set:
+        listset[index] = set[index]
+
+    return listset
 
 # def main():
     # print(len(recentUsers), len(recentPosts), len(recentComments)) 
