@@ -12,6 +12,8 @@ def main():
 
     reports = []
 
+    
+
     badgeclasshyperparams = {'target': 0.7482505099467229, 
     'params': {
         'dropout': 0.2095972572016474, 'hidden1': 47.631414020631496, 
@@ -40,23 +42,30 @@ def kfoldPipelineRun():
 
     reports = []
 
-    badgeclasshyperparams = {'target': 0.7482505099467229, 
-    'params': {
-        'dropout': 0.2095972572016474, 'hidden1': 47.631414020631496, 
-        'learning_rate': 0.020524779748178592, 'num_epochs': 180.49878982255126, 'reg_factor': 0.00027387593197926164}}
-    
-    nicePostBinaryHyperparams = {'target': 0.8259088957051715, 
-        'params': { 'dropout': 0.0461692973843989, 'hidden1': 21.685530991638885, 
-        'learning_rate': 0.03462151663160047, 'num_epochs': 103.48279587690719, 'reg_factor': 0.005388167340033569}}
+    badgeclasshyperparams = {'target': 0.7492577835171325, 
+    'params': {'dropout': 0.4022805061070413, 'hidden1': 33.6998497230906, 'learning_rate': 0.0559131138617306, 
+    'num_epochs': 62.461910175237406, 'reg_factor': 0.001981014890848788}}
 
-    nicePostMulticlassHyperparams = {'target': 0.7077318057798012, 
-        'params': {'dropout': 0.0, 'hidden1': 18.73231710588382, 
-        'learning_rate': 0.045869473853944805, 'num_epochs': 68.72239969553416, 'reg_factor': 0.0}}
+    
+    nicePostBinaryHyperparams = {'target': 0.8302443037409214, 
+    'params': {'dropout': 0.2515167086419769, 'hidden1': 47.631414020631496, 'learning_rate': 0.020524779748178592, 
+    'num_epochs': 180.49878982255126, 'reg_factor': 0.00027387593197926164}}
+
+
+    nicePostMulticlassHyperparams = {'target': 0.7147793751578765, 
+    'params': {'dropout': 0.0, 'hidden1': 12.0, 'learning_rate': 0.03106249938783281, 
+    'num_epochs': 117.92144217515235, 'reg_factor': 0.0}}
+
+
+    tkipfOGHyperparams = {'dropout': 0.5, 'hidden1': 16, 
+        'learning_rate': 0.01, 'num_epochs': 200, 'reg_factor': 0.0005}
+
     num_folds = 10
 
 
     # choice of params (depends on label type)
-    params = nicePostBinaryHyperparams.get('params')
+    # params = nicePostMulticlassHyperparams.get('params')
+    params = tkipfOGHyperparams
 
     kfoldSplits = stratifiedKFold(labels_ints, labelledindices, num_classes, num_folds)
 
@@ -78,7 +87,7 @@ def kfoldPipelineRun():
 
     meanstdevs, class_meanstdevs = getMetricAvgsStdDevsFromReports(reports, num_classes)
     output_text = "\n\n"
-    output_text += "Results for label set (NicePostBinary):\n"
+    output_text += "Results for label set BadgeClass:\n"
     output_text += "Means and standard deviations:\n"
 
     output_text += "Accuracy: " + str(meanstdevs[0]) + "\n"
@@ -97,7 +106,7 @@ def kfoldPipelineRun():
     file = open("output.txt","a")
     file.write(output_text)
 
-    print("Run complete with NicePostBinary labels!")
+    print("Run complete with BadgeClass labels!")
 
 
 

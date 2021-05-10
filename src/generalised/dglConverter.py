@@ -97,8 +97,10 @@ class StackExchangeDataset(DGLDataset):
             test_mask[new_test_indices] = True
             self.graph.ndata['test_mask'] = test_mask
 
-        
-
+    def update_labels(self, labels_ints, num_classes):
+        node_labels = torch.from_numpy(np.array(labels_ints))
+        self.graph.ndata['label'] = node_labels
+        self.num_classes = num_classes
 
 
     # NOTE this is legit since its a dataset with a single graph

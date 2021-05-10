@@ -1,0 +1,15 @@
+Hyperparameter values achieved for badgeclasslabels:
+{'target': 0.7492577835171325, 'params': {'dropout': 0.4022805061070413, 'hidden1': 33.6998497230906, 'learning_rate': 0.0559131138617306, 'num_epochs': 62.461910175237406, 'reg_factor': 0.001981014890848788}}
+
+Hyperparameter values achieved for NicePostBinary labels:
+{'target': 0.8302443037409214, 'params': {'dropout': 0.2515167086419769, 'hidden1': 47.631414020631496, 'learning_rate': 0.020524779748178592, 'num_epochs': 180.49878982255126, 'reg_factor': 0.00027387593197926164}}
+
+Hyperparameter values achieved for NicePostMulti labels:
+{'target': 0.7147793751578765, 'params': {'dropout': 0.0, 'hidden1': 12.0, 'learning_rate': 0.03106249938783281, 'num_epochs': 117.92144217515235, 'reg_factor': 0.0}}
+
+Hyperparameter values achieved for NicePostMulti labels:
+{'target': 0.7134246025097098, 'params': {'dropout': 0.2515167086419769, 'hidden1': 47.631414020631496, 'learning_rate': 0.020524779748178592, 'num_epochs': 180.49878982255126, 'reg_factor': 0.00027387593197926164}}
+
+Hyperparameter values achieved for NicePostMulti labels:
+{'target': 0.7080205915564888, 'params': {'dropout': 0.2515167086419769, 'hidden1': 47.631414020631496, 'learning_rate': 0.020524779748178592, 'num_epochs': 180.49878982255126, 'reg_factor': 0.00027387593197926164}}
+

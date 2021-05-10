@@ -130,7 +130,7 @@ MUST DECIDE WHETHER TO CREATE A NEW TYPE FOR TAGS, OR IGNORE THEM ENTIRELY
 """
 
 def postToFV(post, client, includener= True):
-    fv = [] # need to decide on the structure for a general node FV, then use that here
+    fv = [] 
     if includener:
         postner = getPostNER(post, client)
 
@@ -149,8 +149,6 @@ def postToFV(post, client, includener= True):
     if post['PostTypeId'] == '1':
         fv.append(rangeBinViews(float(post.get('ViewCount'))))
 
-        # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
-
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
 
@@ -160,8 +158,6 @@ def postToFV(post, client, includener= True):
     else:
         
         fv.append(rangeBinViews(post.get('ViewCount')))
-
-        # fv.append([sotimeToTimestamp(post['LastActivityDate'])])
 
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User Upvotes
         fv.append([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]) # User DownVotes
@@ -188,7 +184,6 @@ def userToFV(user, client, includener=True):
 
     fv.append(rangeBinScore(float(user.get('Reputation'))))
 
-    # fv.append(sotimeToTimestamp(user['CreationDate']))
 
     fv.append(rangeBinActiveDuration(sotimeToTimestamp(user['CreationDate']),sotimeToTimestamp(user['LastAccessDate'])))
 
@@ -199,7 +194,6 @@ def userToFV(user, client, includener=True):
 
     fv.append(viewsVector)
 
-    # fv.append(sotimeToTimestamp(user['LastAccessDate']))
     
     fv.append(rangeBinUpDownVotes(float(user.get('UpVotes'))))
     fv.append(rangeBinUpDownVotes(float(user.get('DownVotes'))))

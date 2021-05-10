@@ -56,7 +56,7 @@ def run_adj_dict_building_pipeline():
     return gcngraph, idGraph, indexGuide
 
 
-def run_dataset_building_pipeline():
+def run_dataset_building_pipeline(input_label_set=None):
     data_obj = {'user':recentUsers, 'comment':recentComments, 'post':recentPosts}
 
     schema = {
@@ -122,8 +122,15 @@ def run_dataset_building_pipeline():
         print("Extracted all of the FVs!")
         indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
 
-        indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerBinary(recentUsers, recentBadges, indexGuide)
-
+        if input_label_set is None:
+            indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
+        else:
+            if input_label_set == "BadgeClass":
+                indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
+            elif input_label_set == "NicePostBin":
+                indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerBinary(recentUsers, recentBadges, indexGuide)
+            else:
+                indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerMulticlass(recentUsers, recentBadges, indexGuide)
         # unconnectedindexes = []
 
         # for index in indexFvMap:
