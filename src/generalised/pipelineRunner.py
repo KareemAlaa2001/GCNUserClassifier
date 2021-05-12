@@ -123,7 +123,7 @@ def run_dataset_building_pipeline(input_label_set=None):
         indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
 
         if input_label_set is None:
-            indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
+            indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerBinary(recentUsers, recentBadges, indexGuide)
         else:
             if input_label_set == "BadgeClass":
                 indexLabelMap, userLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)

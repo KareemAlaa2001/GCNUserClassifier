@@ -50,6 +50,67 @@ class GCN(nn.Module):
         h = self.conv2(g, h)
         return h
 
+
+
+def train_get_confusion_matrix(g, model, num_epochs=100, learning_rate=0.01, weight_decay=0, validation=True):
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,weight_decay=weight_decay)
+    best_val_acc = 0
+    best_test_acc = 0
+
+    features = g.ndata['feat']
+    labels = g.ndata['label']
+    train_mask = g.ndata['train_mask']
+    val_mask = g.ndata['val_mask']
+    test_mask = g.ndata['test_mask']
+
+    model = model.float()
+
+    for e in range(num_epochs):
+        # Forward
+        
+        logits = model(g, features.float())
+
+        # Compute prediction
+        pred = logits.argmax(1)
+
+        # Compute loss
+        # Note that you should only compute the losses of the nodes in the training set.
+        loss = F.cross_entropy(logits[train_mask], labels[train_mask])
+
+        # Compute accuracy on training/validation/test
+        train_acc = (pred[train_mask] == labels[train_mask]).float().mean()
+        if validation:
+            val_acc = (pred[val_mask] == labels[val_mask]).float().mean() 
+        test_acc = (pred[test_mask] == labels[test_mask]).float().mean()
+
+        # test_prec, test_rec, test_f1, test_support = metrics.precision_recall_fscore_support(labels, pred, average='macro', sample_weight=test_mask)
+        
+
+
+        # TODO JUST USE THE SKLEARN METRICS U IDIOT
+        # Save the best validation accuracy and the corresponding test accuracy.
+        if validation:
+            if best_val_acc < val_acc:
+                best_val_acc = val_acc
+                best_test_acc = test_acc
+
+        # Backward
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if e % 5 == 0:
+            if validation:
+                print('In epoch {}, loss: {:.3f}, val acc: {:.3f} (best {:.3f}), test acc: {:.3f} (best {:.3f})'.format(
+                    e, loss, val_acc, best_val_acc, test_acc, best_test_acc))
+            else:
+                print('In epoch {}, loss: {:.3f}, test acc: {:.3f} (best {:.3f})'.format(
+                    e, loss, test_acc, best_test_acc))
+    
+    # report = metrics.classification_report(labels, pred, sample_weight=test_mask, digits=3, output_dict=True)
+    confusion = metrics.confusion_matrix(labels, pred, sample_weight=test_mask, normalize='true')
+    return confusion
+
 # # Create the model with given dimensions
 # model = GCN(g.ndata['feat'].shape[1], 16, dataset.num_classes)
 

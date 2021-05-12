@@ -49,11 +49,11 @@ class StackExchangeDataset(DGLDataset):
         stratified = True
         
         if stratified:
-            train_indices, val_indices, test_indices = getstratifiedIndicesSplit(labels_ints, labelledindices, num_classes, 0.6,0.2)
+            train_indices, val_indices, test_indices = getstratifiedIndicesSplit(labels_ints, labelledindices, num_classes, 0.8,0)
 
         else:
-            n_train = int(0.6*num_labelled)
-            n_val = int(0.2* num_labelled)
+            n_train = int(0.8*num_labelled)
+            n_val = 0
 
             train_indices = labelledindices[:n_train]
             val_indices = labelledindices[n_train:n_train + n_val]
