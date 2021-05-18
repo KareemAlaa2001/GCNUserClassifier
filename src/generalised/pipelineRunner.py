@@ -154,7 +154,39 @@ def run_dataset_building_pipeline(input_label_set=None):
         labels_ints = np.argmax(np.array(labelslist),1).tolist()
         print("Creating DGL Dataset")
 
-        return fvslist, labelledindices, labels_ints, gcngraph, num_classes
+        badgeclassindexLabelMap, badgeclassuserLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
+        nicepostbinindexLabelMap, nicepostbinuserLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerBinary(recentUsers, recentBadges, indexGuide)
+        nicepostmultiindexLabelMap, nicepostmultiuserLabels = labelBuilder.getAllLabelsUsingNiceQuestionAnswerMulticlass(recentUsers, recentBadges, indexGuide)
+        labelsets = []
+
+        badgeclasslabelledindices = []
+        for userindex in badgeclassuserLabels:
+            badgeclasslabelledindices.append(userindex)
+        badgeclasslabelslist = convertDictSetToListSet(badgeclassindexLabelMap)
+        badgeclass_num_classes = len(badgeclasslabelslist[0])
+        badgeclass_labels_ints = np.argmax(np.array(badgeclasslabelslist),1).tolist()
+        
+        labelsets.append((badgeclasslabelledindices, badgeclass_labels_ints, badgeclass_num_classes))
+        
+        badgeclasslabelledindices = []
+        for userindex in nicepostbinuserLabels:
+            badgeclasslabelledindices.append(userindex)
+        badgeclasslabelslist = convertDictSetToListSet(nicepostbinindexLabelMap)
+        badgeclass_num_classes = len(badgeclasslabelslist[0])
+        badgeclass_labels_ints = np.argmax(np.array(badgeclasslabelslist),1).tolist()
+
+        labelsets.append((badgeclasslabelledindices, badgeclass_labels_ints, badgeclass_num_classes))
+
+        badgeclasslabelledindices = []
+        for userindex in nicepostmultiuserLabels:
+            badgeclasslabelledindices.append(userindex)
+        badgeclasslabelslist = convertDictSetToListSet(nicepostmultiindexLabelMap)
+        badgeclass_num_classes = len(badgeclasslabelslist[0])
+        badgeclass_labels_ints = np.argmax(np.array(badgeclasslabelslist),1).tolist()
+
+        labelsets.append((badgeclasslabelledindices, badgeclass_labels_ints, badgeclass_num_classes))
+
+        return fvslist, labelledindices, labels_ints, gcngraph, num_classes, labelsets
         # return fvslist, labelledindices, labels_ints, gcngraph, num_classes
 
 # if __name__ == '__main__':

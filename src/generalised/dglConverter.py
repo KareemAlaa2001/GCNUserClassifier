@@ -14,9 +14,10 @@ class StackExchangeDataset(DGLDataset):
         super().__init__(name='stack_exchange')
 
     def process(self):
-        fvs, labelledindices, labels_ints, adj_dict, num_classes = run_dataset_building_pipeline()
+        fvs, labelledindices, labels_ints, adj_dict, num_classes, labelsets = run_dataset_building_pipeline()
         self.labelledindices = labelledindices
         self.labels_ints = labels_ints
+        self.labelsets = labelsets
         node_features = torch.from_numpy(np.array(fvs))
         node_labels = torch.from_numpy(np.array(labels_ints))
 
@@ -102,6 +103,13 @@ class StackExchangeDataset(DGLDataset):
         self.graph.ndata['label'] = node_labels
         self.num_classes = num_classes
 
+    def update_labels_from_labelsets(self, number):
+        chosenset = self.labelsets[number]
+        labelledindices = chosenset[0]
+        labels_ints = chosenset[1]
+        num_classes = chosenset[2]
+        self.update_labels(labels_ints, num_classes)
+        
 
     # NOTE this is legit since its a dataset with a single graph
     def __getitem__(self, i):

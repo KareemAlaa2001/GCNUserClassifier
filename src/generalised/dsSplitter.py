@@ -50,6 +50,7 @@ def split_dataset(fvs, labels, train_size):
         raise ValueError("train_size should be between 0 and 1!!")
 
     if len(fvs) != len(labels):
+        print(len(fvs), print(len(labels)))
         raise ValueError("Lengths of fvs and labels not equal!!")
  
     train_fvs = []

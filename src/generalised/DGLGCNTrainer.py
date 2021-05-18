@@ -87,13 +87,13 @@ def train_get_confusion_matrix(g, model, num_epochs=100, learning_rate=0.01, wei
         
 
 
-        # TODO JUST USE THE SKLEARN METRICS U IDIOT
         # Save the best validation accuracy and the corresponding test accuracy.
         if validation:
             if best_val_acc < val_acc:
                 best_val_acc = val_acc
-                best_test_acc = test_acc
-
+                
+        if best_test_acc < test_acc:
+            best_test_acc = test_acc
         # Backward
         optimizer.zero_grad()
         loss.backward()
@@ -149,12 +149,13 @@ def train(g, model, num_epochs=100, learning_rate=0.01, weight_decay=0, validati
         
 
 
-        # TODO JUST USE THE SKLEARN METRICS U IDIOT
         # Save the best validation accuracy and the corresponding test accuracy.
         if validation:
             if best_val_acc < val_acc:
                 best_val_acc = val_acc
-                best_test_acc = test_acc
+
+        if best_test_acc < test_acc:
+            best_test_acc = test_acc
 
         # Backward
         optimizer.zero_grad()
@@ -169,7 +170,7 @@ def train(g, model, num_epochs=100, learning_rate=0.01, weight_decay=0, validati
                 print('In epoch {}, loss: {:.3f}, test acc: {:.3f} (best {:.3f})'.format(
                     e, loss, test_acc, best_test_acc))
     
-    report = metrics.classification_report(labels, pred, sample_weight=test_mask, digits=3, output_dict=True)
+    report = metrics.classification_report(labels, pred, sample_weight=test_mask, digits=3, output_dict=False)
     return report
 
 def train_get_weighted_f1(g, model, num_epochs=100, learning_rate=0.01, weight_decay=0):

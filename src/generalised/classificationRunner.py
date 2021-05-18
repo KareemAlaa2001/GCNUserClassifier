@@ -9,9 +9,6 @@ def main():
     labels_ints = dataset.labels_ints
     labelledindices = dataset.labelledindices
     g = dataset[0]  
-
-    reports = []
-
     
 
     badgeclasshyperparams = {'target': 0.7482505099467229, 
@@ -23,16 +20,43 @@ def main():
         'params': { 'dropout': 0.0461692973843989, 'hidden1': 21.685530991638885, 
         'learning_rate': 0.03462151663160047, 'num_epochs': 103.48279587690719, 'reg_factor': 0.005388167340033569}}
 
-    #   Running the actual classification
-    #   Going to run a 10-fold evaluation
-    #   NOTE doing this in the separate func below
-    # num_folds = 10
-    # for i in range(10):
-    #     params = badgeclasshyperparams.get('params')
-    #     model = DGLGCNTrainer.GCN(g.ndata['feat'].shape[1], params.get('hidden1'), dataset.num_classes, allow_zero_in_degree=True, dropout=params.get('dropout'))
-    #     report = DGLGCNTrainer.train(g, model, weight_decay=params.get('reg_factor'), learning_rate=params.get('learning_rate'), num_epochs=params.get('num_epochs'))
 
-    #     reports.append(report)
+    nicePostMulticlassHyperparams = {'target': 0.7147793751578765, 
+    'params': {'dropout': 0.0, 'hidden1': 12.0, 'learning_rate': 0.03106249938783281, 
+    'num_epochs': 117.92144217515235, 'reg_factor': 0.0}}
+
+    # BADGE CLASS RUN
+    params = badgeclasshyperparams.get('params')
+    dataset.update_labels_from_labelsets(0)
+    graph = dataset[0]
+
+    model = DGLGCNTrainer.GCN(graph.ndata['feat'].shape[1], int(params.get('hidden1')), dataset.num_classes, allow_zero_in_degree=True, dropout=params.get('dropout'))
+    reportbadgeclass = DGLGCNTrainer.train(graph, model, weight_decay=params.get('reg_factor'), learning_rate=params.get('learning_rate'), num_epochs=int(params.get('num_epochs')), validation=False)
+    
+    # NicePostBinary RUN
+    params = nicePostBinaryHyperparams.get('params')
+    dataset.update_labels_from_labelsets(1)
+    graph = dataset[0]
+
+    model = DGLGCNTrainer.GCN(graph.ndata['feat'].shape[1], int(params.get('hidden1')), dataset.num_classes, allow_zero_in_degree=True, dropout=params.get('dropout'))
+    reportnicepostbinary = DGLGCNTrainer.train(graph, model, weight_decay=params.get('reg_factor'), learning_rate=params.get('learning_rate'), num_epochs=int(params.get('num_epochs')), validation=False)
+
+    # NicePostBinary RUN
+    params = nicePostMulticlassHyperparams.get('params')
+    dataset.update_labels_from_labelsets(2)
+    graph = dataset[0]
+
+    model = DGLGCNTrainer.GCN(graph.ndata['feat'].shape[1], int(params.get('hidden1')), dataset.num_classes, allow_zero_in_degree=True, dropout=params.get('dropout'))
+    reportnicepostmulti = DGLGCNTrainer.train(graph, model, weight_decay=params.get('reg_factor'), learning_rate=params.get('learning_rate'), num_epochs=int(params.get('num_epochs')), validation=False)
+
+    print("RESULTS:")
+    print("Badge Class Classification Report:")
+    print(reportbadgeclass)
+    print("NicePostBinary Classification Report:")
+    print(reportnicepostbinary)
+    print("NicePostMulti Classification Report:")
+    print(reportnicepostmulti)
+    # Demo Code, 1 run each
 
 def kfoldPipelineRun():
     dataset = StackExchangeDataset()
@@ -60,12 +84,12 @@ def kfoldPipelineRun():
     tkipfOGHyperparams = {'dropout': 0.5, 'hidden1': 16, 
         'learning_rate': 0.01, 'num_epochs': 200, 'reg_factor': 0.0005}
 
-    num_folds = 10
+    num_folds = 4
 
 
     # choice of params (depends on label type)
-    # params = nicePostMulticlassHyperparams.get('params')
-    params = tkipfOGHyperparams
+    params = nicePostBinaryHyperparams.get('params')
+    # params = tkipfOGHyperparams
 
     kfoldSplits = stratifiedKFold(labels_ints, labelledindices, num_classes, num_folds)
 
@@ -87,7 +111,7 @@ def kfoldPipelineRun():
 
     meanstdevs, class_meanstdevs = getMetricAvgsStdDevsFromReports(reports, num_classes)
     output_text = "\n\n"
-    output_text += "Results for label set BadgeClass:\n"
+    output_text += "Results for label set NicePostBinary:\n"
     output_text += "Means and standard deviations:\n"
 
     output_text += "Accuracy: " + str(meanstdevs[0]) + "\n"
@@ -106,7 +130,7 @@ def kfoldPipelineRun():
     file = open("output.txt","a")
     file.write(output_text)
 
-    print("Run complete with BadgeClass labels!")
+    print("Run complete with NicePostBinary labels!")
 
 
 
@@ -181,5 +205,5 @@ def extractMetricsFromReport(report, num_classes):
     
 
 if __name__=='__main__':
-    # main()
-    kfoldPipelineRun()
+    main()
+    # kfoldPipelineRun()

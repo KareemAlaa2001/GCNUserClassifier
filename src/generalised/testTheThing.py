@@ -156,7 +156,7 @@ def main():
 
         print("Extracted all of the FVs!")
         indexFvMap = convertIdFVGuideToFVIndexGuide(idFVMap, indexGuide)
-        indexLabelMap = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
+        indexLabelMap, userIndexLabels = labelBuilder.getAllLabelsUsingBadgeClass(recentUsers, recentBadges, indexGuide)
 
         
         print("splitting the dataset...")
