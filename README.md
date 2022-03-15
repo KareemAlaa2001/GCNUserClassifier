@@ -72,6 +72,9 @@ The outputs of the schema-based CorpusReader include the GCN-ready adjacency mat
 
 There is also the intermediate "Masterdict" form, which is a dict containing type:list of nodes of that type. Each node entry contains the key:value pairs for the attributes included in the schema.
 
+# Planned Updates
+
+An update to this README is currently in the works in order to further break down the completed work.
 <!-- # TODO Complete this
 
 # Possible Expansionsss:
